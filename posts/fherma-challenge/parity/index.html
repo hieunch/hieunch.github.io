@@ -1,0 +1,657 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en-US" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>IBM Parity Challenge - Chi-Hieu Nguyen</title>
+<meta name="description" content="The article details my winning solution for the IBM Parity challenge.">
+
+
+  <meta name="author" content="Chi-Hieu Nguyen">
+  
+  <meta property="article:author" content="Chi-Hieu Nguyen">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Chi-Hieu Nguyen">
+<meta property="og:title" content="IBM Parity Challenge">
+<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/parity/">
+
+
+  <meta property="og:description" content="The article details my winning solution for the IBM Parity challenge.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2024-09-24T00:00:00+10:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/parity/">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Chi-Hieu Nguyen Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single" dir="ltr">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Chi-Hieu Nguyen
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/cv.pdf"
+                
+                
+              >CV</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/publications/"
+                
+                
+              >Publications</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/blog_posts/"
+                
+                
+              >Blog Posts</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/demos/"
+                
+                
+              >Demos</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/images/hieu.jpg" alt="Chi-Hieu Nguyen" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">Chi-Hieu Nguyen</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Ph.D. Student at the University of Technology Sydney</p>
+
+      </div>
+    
+
+    <div class="author__urls-wrapper">
+      <!-- <button class="btn btn--inverse">Follow</button> -->
+      <ul class="author__urls social-icons">
+        
+          <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Sydney, Australia</span>
+          </li>
+        
+
+        
+          
+            
+          
+            
+          
+            
+              <li><a href="https://linkedin.com/in/hieu-nguyen-ba6548316" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span class="label">Linkedin</span></a></li>
+            
+          
+            
+              <li><a href="https://scholar.google.com/citations?user=MqGsKf4AAAAJ" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fa-brands fa-fw fa-google-scholar" aria-hidden="true"></i><span class="label">Google Scholar</span></a></li>
+            
+          
+            
+          
+            
+          
+            
+          
+        
+
+        
+
+        
+          <li>
+            <a href="mailto:chihieu2506@gmail.com" rel="me" class="u-email">
+              <meta itemprop="email" content="chihieu2506@gmail.com" />
+              <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+            </a>
+          </li>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="IBM Parity Challenge">
+    <meta itemprop="description" content="The article details my winning solution for the IBM Parity challenge.">
+    <meta itemprop="datePublished" content="2024-09-24T00:00:00+10:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">
+            <a href="http://localhost:4000/posts/fherma-challenge/parity/" itemprop="url">IBM Parity Challenge
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/65ef8c4c5428d672bcc3977b">IBM Parity challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="overview-of-the-approach">Overview of the approach</h2>
+
+<p>The parity function $parity(x) = x \mod 2$ is intimately connected to the bit extraction problem, where the goal is to determine the bit representation of a given integer $x$ the goal such that $x=\sum2^ib_i$. This function can be expressed in the continuous domain using the trigonometric function $f: [0,255] \to [0,1],\; f(x) = \frac{1}{2}(\cos(\pi (x+1))+1)$. Evaluating trigonometric functions in an encrypted domain is a well-established problem, which is frequently employed in the bootstrapping process to refresh the level of an “exhausted” ciphertext <a href="#1">[1]</a>. A common approach to evaluating a cosine function is to utilize the double-angle formula $\cos(2x)=2\cos^2x-1$ to evaluate $\cos(2x)$ from an approximation of $\cos(x)$, thus narrowing down the approximation range and reduce the order of the approximated polynomial.</p>
+
+<p>We adopt the same approach and try to approximate $f$ using Chebyshev basis. Initially, the input value $x$ is normalized to the interval $[-1,1]$ using the linear transformation $y = \frac{x-128}{128}$. The target function becomes $f: [-1,1] \to [0,1],\; f(y) = \frac{1}{2}(\cos(\pi(128y+129))+1)=\frac{1}{2}(\cos(128\pi y+\pi)+1)$. Using the double angle formula, we first approximate $\cos\left(\pi y+\frac{\pi}{128}\right)$ by a polynomial $p(y)$ and then apply the transformation $h(y) = 2y^2-1$ to iteratively calculate $(h^7\circ p)(y)$, which approximates $\cos\left(128\pi y+\pi\right)$. The approximation of $\cos\left(\pi y+\frac{\pi}{128}\right)$ can be obtained using the <code class="language-plaintext highlighter-rouge">numpy.polyfit</code> method in Python.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>f = lambda x: np.cos(np.pi*x+np.pi/128)
+x = np.arange(0,257)
+y = (x-128)/128
+p = np.polyfit(y, f(y), 8)
+</code></pre></div></div>
+<p>This method returns a list of coefficients in the monomial basis, which must be converted to the Chebyshev basis for stable evaluation in a fixed-point environment. <strong>Figure 1</strong> shows an illustration of such approximation using a polynomial of degree 8.</p>
+
+<p><img src="/assets/images/parity_1.png" alt="parity_Figure_1" /></p>
+
+<p><em><strong>Figure 1</strong>: (left) Approximation of $\cos\left(\pi y+\frac{\pi}{128}\right)$ using an 8th-degree polynomial. (right) Absolute error of the approximation.</em></p>
+
+<p>The interpolant appears accurate at this stage. However, after applying the double-angle iteration 7 times, the accuracy degrades beyond the desired bounds. <strong>Figure 2</strong> depicts the resulting approximation, showing significant errors at certain values (e.g., $0, 126, 127, 128, 255, 256$) that exceed the acceptable threshold of $0.01$.</p>
+
+<p><img src="/assets/images/parity_2.png" alt="parity_Figure_2" /></p>
+
+<p><em><strong>Figure 2</strong>: (top) Approximation of $\cos\left(128\pi y+\pi\right)$ after 7 double angle iterations. (bottom) Absolute error of the approximation.</em></p>
+
+<p>To address this issue, we refined the polynomial approximation using a modified Arnoldi method as introduced in <a href="#2">[2]</a>. Unlike the referenced approach, which uses the error $\left|p(y) - \cos\left(\pi y+\frac{\pi}{128}\right)\right|$, we utilize the final error after the 7th double-angle iteration to update the weight vector for next steps. The Python code for improving the polynomial approximation is as follows:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g = lambda x: np.cos(128*np.pi*x+np.pi)
+w = np.ones_like(y)
+for _ in range(5):
+    p = np.polyfit(y, f(y), 8, w=np.sqrt(w))
+    z = np.polyval(p,y)
+    for i in range(7):
+        z = 2*z*z-1
+
+    w = w*np.abs(z-g(y))
+    w = w / np.linalg.norm(w)
+    w = np.abs(w)
+</code></pre></div></div>
+
+<p>After 5 iterations, the maximum approximation error reduced to below $3\times 10^{-4}$, indicating a satisfactory solution. <strong>Figure 3</strong> presents the final approximation.</p>
+
+<p><img src="/assets/images/parity_3.png" alt="parity_Figure_3" /></p>
+
+<p><em><strong>Figure 3</strong>: (top) The final approximation. (bottom) Absolute error of the approximation.</em></p>
+
+<p>We can now convert the resulting polynomial to Chebyshev basis for evaluation.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>print(np.polynomial.chebyshev.poly2cheb(p[::-1]))
+# [-3.04159700e-01 -1.39659316e-02 -9.70590161e-01  1.63649478e-02
+#   3.02827581e-01 -2.56364745e-03 -2.91082990e-02  1.66592418e-04
+#   1.33270778e-03]
+
+</code></pre></div></div>
+
+<h2 id="optimizations">Optimizations</h2>
+
+<p>To further accelerate the polynomial evaluation, we apply a simple input-shifting trick. That is, instead of directly approximating $\cos\left(\pi y+\frac{\pi}{128}\right)$, we approximate $p(y) \approx \cos\left(\pi y\right)$ using the same method and then evaluate $p\left(y+\frac{\pi}{128}\right)$ to obtain $\cos\left(\pi y+\frac{\pi}{128}\right)$. Since $\cos\left(\pi y\right)$ is an even function, its Chebyshev representation contains only even-degree terms, allowing us to omit the odd-degree terms for faster evaluation. The updated Chebyshev representation of $p$ is as follows.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># [-0.3042513777371315, 0, -0.970882602838183, 0, 0.30291864798067064, 0, -0.02911740974995488, 0, 0.0013327077835582305]
+</code></pre></div></div>
+
+<p>Finally, recall that our the target function is $f(y) = \frac{1}{2}(\cos(128\pi y+\pi)+1)$, the approximation of $\cos(128\pi y+\pi)$ must be scaled by $\frac{1}{2}$, which inccurs an extra multiplication level. To avoid this, we scale the coefficients of $p$ by $\frac{2}{\sqrt[2^7]{4}}$ to approximate $\frac{2}{\sqrt[2^7]{4}}\cos\left(\pi y\right)$. We then apply a serie of transformation $h_i(y) = y^2-2\left(\frac{1}{\sqrt[2^7]{4}}\right)^{2^i}$ to calculate $(h_7\circ \cdots \circ h_1\circ p)\left(y+\frac{\pi}{128}\right) \approx \frac{1}{2}\cos(128\pi y+\pi)$. The final approximation of $f(y)$ is obtained by adding $\frac{1}{2}$ to the resulting value. The multiplication depth of the whole computation is 12 (1 for evaluating $y$, 4 for evaluating $p(y)$ and 7 for the transformations $h_1,\dots,h_7$).</p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>
+
+<p><a name="2"></a>[2] <strong>Pablo D Brubeck, Yuji Nakatsukasa, and Lloyd N Trefethen</strong>, “Vandermonde with Arnoldi”, <em>SIAM Review</em>, 63(2):405–415, 2021.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#fherma-challenge" class="page__taxonomy-item p-category" rel="tag">FHERMA Challenge</a><span class="sep">, </span>
+    
+      <a href="/tags/#homomorphic-encryption" class="page__taxonomy-item p-category" rel="tag">Homomorphic Encryption</a><span class="sep">, </span>
+    
+      <a href="/tags/#ibm-research" class="page__taxonomy-item p-category" rel="tag">IBM Research</a><span class="sep">, </span>
+    
+      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2024-09-24T00:00:00+10:00">September 24, 2024</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  <h4 class="page__share-title">Share on</h4>
+
+  <a href="https://twitter.com/intent/tweet?text=IBM+Parity+Challenge%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fparity%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fparity%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/parity/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="#" class="pagination--pager disabled">Previous</a>
+    
+    
+      <a href="/posts/fherma-challenge/cifar10/" class="pagination--pager" title="CIFAR-10 Encrypted Image Classification">Next</a>
+    
+  </nav>
+
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    
+<div class="page__related">
+  
+  <h2 class="page__related-title">You may also enjoy</h2>
+  <div class="grid__wrapper">
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/sorting/" rel="permalink">IBM Encrypted Array Sorting Challenge
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my winning solution for the IBM Array Sorting challenge.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/shl/" rel="permalink">Bitwise Shift Left Challenge
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my winning solution for the FHERMA SHL challenge.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/cifar10/" rel="permalink">CIFAR-10 Encrypted Image Classification
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my winning solution for the FHERMA CIFAR-10 challenge.
+</p>
+  </article>
+</div>
+
+    
+  </div>
+</div>
+
+  
+  
+</div>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <!-- <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div> -->
+
+<div class="page__footer-copyright">&copy; 2025 <a href="http://localhost:4000">Chi-Hieu Nguyen</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/jekyll-themes/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

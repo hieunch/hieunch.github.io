@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-03T02:40:25+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Chi-Hieu Nguyen</title><subtitle>Ph.D Student at the University of Technology Sydney</subtitle><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><entry><title type="html">IBM Encrypted Array Sorting Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/sorting/" rel="alternate" type="text/html" title="IBM Encrypted Array Sorting Challenge" /><published>2024-11-24T00:00:00+11:00</published><updated>2024-11-24T00:00:00+11:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-sorting</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/sorting/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66582c7551eafe1a4e6c451b">IBM Array Sorting challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The objective of the challenge is to sort an encrypted array of real values. Sorting under approximate HE, such as the CKKS scheme, presents unique challenges due to the inherent noise introduced by the scheme. This noise grows with each operation, further amplified by the inaccuracies in the polynomial approximations used for comparisons.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>The proposed solution comprises two main steps:</p>
+
+<h3 id="step-1-index-calculation">Step 1: Index Calculation</h3>
+<p>For each value in the array, we determine its target index by counting the number of values smaller than it. This involves pairwise comparisons of all array elements. To facilitate these comparisons, the current value is subtracted from every other value, and the result is passed through an approximated sign function. These pairwise comparisons are performed simultaneously in a SIMD fashion within a single packed ciphertext containing $2^{15} = 32,768$ slots. This process requires several rotations to duplicate values across the ciphertext slots. <strong>Figure 1</strong> illustrates the computation of target indices.</p>
+
+<p><img src="https://hackmd.io/_uploads/SyYzaUXXJg.png" alt="fherma-sorting" /></p>
+
+<p><em><strong>Figure 1</strong>: A toy example illustrating the computation of sorted indices for an input array of size 4.</em></p>
+
+<p>To perform the comparison, we approximate the sign function using a composite polynomial approach as described in <a href="#1">[1]</a>. Specifically, three polynomials of degree 63 are employed to approximate the function within the range $[-255, -0.01] \cup [0.01, 255]$ to satisfy the challenge requirements. <strong>Figure 2</strong> depicts the approximation, with a maximum absolute error below $0.0001$. Polynomial evaluations are done using the baby-step giant-step (BSGS) algorithm <a href="#2">[2]</a> to optimize level consumption. The comparison circuit utilizes 19 levels in total ($1 + 3\lceil\log_2{63}\rceil$), including an additional level for input value scaling. After applying the comparison function, rotation and summation operations are performed to accumulate results and compute the target indices (<strong>Figure 1</strong>).</p>
+
+<p><img src="https://hackmd.io/_uploads/H15bGrm7kl.png" alt="fherma_sorting_4" /></p>
+
+<p><em><strong>Figure 2</strong>: Approximation of the sign function using a composition of three polynomials $p_1, p_2, p_3$ of degree 63.</em></p>
+
+<h3 id="step-2-permutation">Step 2: Permutation</h3>
+<p>A permutation matrix is derived based on the computed indices, as demonstrated in <strong>Figure 3</strong>. This process requires an approximated equality-checking function, which is constructed as a composition of two polynomials with degrees 59 and 62, as shown in <strong>Figure 4</strong>. The array is then rearranged into sorted order using vector-matrix multiplication with the permutation matrix. This step consumes a total of 14 levels, obtained by $\lceil\log_2{59}\rceil + \lceil\log_2{62}\rceil + 2$, where the additional two levels account for multiplication with the permutation matrix and a masking operation.</p>
+
+<p><img src="https://hackmd.io/_uploads/S19BQv7Xyx.png" alt="fherma-sorting-Page-2" /></p>
+
+<p><em><strong>Figure 3</strong>: Computation of the permutation matrix from the indices, followed by the rearrangement of array elements into sorted order.</em></p>
+
+<p><img src="https://hackmd.io/_uploads/S1QfGHmXJg.png" alt="fherma_sorting_5'" /></p>
+
+<p><em><strong>Figure 4</strong>: Approximation of the equality checking function using a composition of three polynomials $p_4,p_5$ of degree 59 and 62.</em></p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] <strong>Lee, Eunsang</strong>, et al. “Minimax approximation of sign function by composite polynomial for homomorphic comparison.” <em>IEEE Transactions on Dependable and Secure Computing</em> 19.6 (2021): 3711-3727.</p>
+
+<p><a name="2"></a>[2] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="IBM Research" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [IBM Array Sorting challenge](https://fherma.io/challenges/66582c7551eafe1a4e6c451b).]]></summary></entry><entry><title type="html">IBM Parity Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/parity/" rel="alternate" type="text/html" title="IBM Parity Challenge" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-parity</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/parity/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/65ef8c4c5428d672bcc3977b">IBM Parity challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="overview-of-the-approach">Overview of the approach</h2>
+
+<p>The parity function $parity(x) = x \mod 2$ is intimately connected to the bit extraction problem, where the goal is to determine the bit representation of a given integer $x$ the goal such that $x=\sum2^ib_i$. This function can be expressed in the continuous domain using the trigonometric function $f: [0,255] \to [0,1],\; f(x) = \frac{1}{2}(\cos(\pi (x+1))+1)$. Evaluating trigonometric functions in an encrypted domain is a well-established problem, which is frequently employed in the bootstrapping process to refresh the level of an “exhausted” ciphertext <a href="#1">[1]</a>. A common approach to evaluating a cosine function is to utilize the double-angle formula $\cos(2x)=2\cos^2x-1$ to evaluate $\cos(2x)$ from an approximation of $\cos(x)$, thus narrowing down the approximation range and reduce the order of the approximated polynomial.</p>
+
+<p>We adopt the same approach and try to approximate $f$ using Chebyshev basis. Initially, the input value $x$ is normalized to the interval $[-1,1]$ using the linear transformation $y = \frac{x-128}{128}$. The target function becomes $f: [-1,1] \to [0,1],\; f(y) = \frac{1}{2}(\cos(\pi(128y+129))+1)=\frac{1}{2}(\cos(128\pi y+\pi)+1)$. Using the double angle formula, we first approximate $\cos\left(\pi y+\frac{\pi}{128}\right)$ by a polynomial $p(y)$ and then apply the transformation $h(y) = 2y^2-1$ to iteratively calculate $(h^7\circ p)(y)$, which approximates $\cos\left(128\pi y+\pi\right)$. The approximation of $\cos\left(\pi y+\frac{\pi}{128}\right)$ can be obtained using the <code class="language-plaintext highlighter-rouge">numpy.polyfit</code> method in Python.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>f = lambda x: np.cos(np.pi*x+np.pi/128)
+x = np.arange(0,257)
+y = (x-128)/128
+p = np.polyfit(y, f(y), 8)
+</code></pre></div></div>
+<p>This method returns a list of coefficients in the monomial basis, which must be converted to the Chebyshev basis for stable evaluation in a fixed-point environment. <strong>Figure 1</strong> shows an illustration of such approximation using a polynomial of degree 8.</p>
+
+<p><img src="/assets/images/parity_1.png" alt="parity_Figure_1" /></p>
+
+<p><em><strong>Figure 1</strong>: (left) Approximation of $\cos\left(\pi y+\frac{\pi}{128}\right)$ using an 8th-degree polynomial. (right) Absolute error of the approximation.</em></p>
+
+<p>The interpolant appears accurate at this stage. However, after applying the double-angle iteration 7 times, the accuracy degrades beyond the desired bounds. <strong>Figure 2</strong> depicts the resulting approximation, showing significant errors at certain values (e.g., $0, 126, 127, 128, 255, 256$) that exceed the acceptable threshold of $0.01$.</p>
+
+<p><img src="/assets/images/parity_2.png" alt="parity_Figure_2" /></p>
+
+<p><em><strong>Figure 2</strong>: (top) Approximation of $\cos\left(128\pi y+\pi\right)$ after 7 double angle iterations. (bottom) Absolute error of the approximation.</em></p>
+
+<p>To address this issue, we refined the polynomial approximation using a modified Arnoldi method as introduced in <a href="#2">[2]</a>. Unlike the referenced approach, which uses the error $\left|p(y) - \cos\left(\pi y+\frac{\pi}{128}\right)\right|$, we utilize the final error after the 7th double-angle iteration to update the weight vector for next steps. The Python code for improving the polynomial approximation is as follows:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g = lambda x: np.cos(128*np.pi*x+np.pi)
+w = np.ones_like(y)
+for _ in range(5):
+    p = np.polyfit(y, f(y), 8, w=np.sqrt(w))
+    z = np.polyval(p,y)
+    for i in range(7):
+        z = 2*z*z-1
+
+    w = w*np.abs(z-g(y))
+    w = w / np.linalg.norm(w)
+    w = np.abs(w)
+</code></pre></div></div>
+
+<p>After 5 iterations, the maximum approximation error reduced to below $3\times 10^{-4}$, indicating a satisfactory solution. <strong>Figure 3</strong> presents the final approximation.</p>
+
+<p><img src="/assets/images/parity_3.png" alt="parity_Figure_3" /></p>
+
+<p><em><strong>Figure 3</strong>: (top) The final approximation. (bottom) Absolute error of the approximation.</em></p>
+
+<p>We can now convert the resulting polynomial to Chebyshev basis for evaluation.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>print(np.polynomial.chebyshev.poly2cheb(p[::-1]))
+# [-3.04159700e-01 -1.39659316e-02 -9.70590161e-01  1.63649478e-02
+#   3.02827581e-01 -2.56364745e-03 -2.91082990e-02  1.66592418e-04
+#   1.33270778e-03]
+
+</code></pre></div></div>
+
+<h2 id="optimizations">Optimizations</h2>
+
+<p>To further accelerate the polynomial evaluation, we apply a simple input-shifting trick. That is, instead of directly approximating $\cos\left(\pi y+\frac{\pi}{128}\right)$, we approximate $p(y) \approx \cos\left(\pi y\right)$ using the same method and then evaluate $p\left(y+\frac{\pi}{128}\right)$ to obtain $\cos\left(\pi y+\frac{\pi}{128}\right)$. Since $\cos\left(\pi y\right)$ is an even function, its Chebyshev representation contains only even-degree terms, allowing us to omit the odd-degree terms for faster evaluation. The updated Chebyshev representation of $p$ is as follows.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># [-0.3042513777371315, 0, -0.970882602838183, 0, 0.30291864798067064, 0, -0.02911740974995488, 0, 0.0013327077835582305]
+</code></pre></div></div>
+
+<p>Finally, recall that our the target function is $f(y) = \frac{1}{2}(\cos(128\pi y+\pi)+1)$, the approximation of $\cos(128\pi y+\pi)$ must be scaled by $\frac{1}{2}$, which inccurs an extra multiplication level. To avoid this, we scale the coefficients of $p$ by $\frac{2}{\sqrt[2^7]{4}}$ to approximate $\frac{2}{\sqrt[2^7]{4}}\cos\left(\pi y\right)$. We then apply a serie of transformation $h_i(y) = y^2-2\left(\frac{1}{\sqrt[2^7]{4}}\right)^{2^i}$ to calculate $(h_7\circ \cdots \circ h_1\circ p)\left(y+\frac{\pi}{128}\right) \approx \frac{1}{2}\cos(128\pi y+\pi)$. The final approximation of $f(y)$ is obtained by adding $\frac{1}{2}$ to the resulting value. The multiplication depth of the whole computation is 12 (1 for evaluating $y$, 4 for evaluating $p(y)$ and 7 for the transformations $h_1,\dots,h_7$).</p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>
+
+<p><a name="2"></a>[2] <strong>Pablo D Brubeck, Yuji Nakatsukasa, and Lloyd N Trefethen</strong>, “Vandermonde with Arnoldi”, <em>SIAM Review</em>, 63(2):405–415, 2021.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="IBM Research" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [IBM Parity challenge](https://fherma.io/challenges/65ef8c4c5428d672bcc3977b).]]></summary></entry><entry><title type="html">CIFAR-10 Encrypted Image Classification</title><link href="http://localhost:4000/posts/fherma-challenge/cifar10/" rel="alternate" type="text/html" title="CIFAR-10 Encrypted Image Classification" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-cifar10</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/cifar10/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/652bf663485c878710fd0209">CIFAR-10 challenge</a>.</em> 
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The challenge task involves inferring the class of an encrypted input image, a problem situated within the domain of privacy-preserving machine learning inference. This area has recently garnered significant interest from both academia and industry. The challenge is based on a public dataset, allowing unrestricted use of training data. Consequently, one could attempt to overfit a machine learning model on the entire set of 60,000 CIFAR images (comprising 50,000 training images and 10,000 testing images) to achieve optimal accuracy. This important point makes public implementations of HE image classification, which are based on conventional neural networks (e.g., CNN, ResNet), too complex to be directly used as a competitive solution.</p>
+
+<h2 id="model-selection">Model Selection</h2>
+
+<p>We experimented with various neural network architectures and ultimately decided to use the Kolmogorov-Arnold Network (KAN). Compared to traditional multilayer perceptron networks, KAN requires fewer model parameters and performs well in signal/function regression or interpolation tasks, making it well-suited for this challenge. To enhance evaluation efficiency, we adopted a variant of KAN based on Chebyshev polynomials, known as ChebyKAN [1]. The Chebyshev basis can be efficiently computed using recursive formulas, thereby reducing computational costs and minimizing ciphertext level consumption.</p>
+
+<h2 id="model-training">Model Training</h2>
+
+<p>We trained a KAN network with a single layer of learnable activation functions. To optimize runtime, we sought the lowest possible activation degree that could still achieve 100% prediction accuracy. The training code was adapted from a GitHub repository <a href="#1">[1]</a>. We successfully trained the model to a degree of 8, which required a multiplication depth of 5: one for normalizing the input vector and four for evaluating the Chebyshev polynomials.</p>
+
+<h2 id="optimization">Optimization</h2>
+
+<p>Given that the input vector consists of 3,072 elements (from a 32x32 image with three channels), the minimum ring dimension we could use in the challenge was 8,192, with up to 4,096 plaintext slots to encrypt the entire input vector. We aimed to work with this lowest ring dimension to minimize complexity and maximize computation speed.</p>
+
+<p>We observed that the dominant HE operator during inference was the rotation operator, which necessitates costly key-switching calculations. Theoretically, to compute the sum over a vector of $N$ elements packed in a single ciphertext, one must perform $\log_2(N)$ rotations using the folding technique. With an input dimension of 3,072 and an output dimension of 10 classes, the first layer’s forward pass (calculating 10 different summations for the 10 classes) would require at least $\left \lceil\log_2(3,072)\right \rceil + 10 - 1 = 21$ rotations at a ring dimension of 8,192. To reduce this number and expedite the inference process, our idea is to infer the probability for each output class based on subsampled portions of the input image.</p>
+
+<p>Specifically, the output probability for the $i$-th class was computed from pixels located at indices $i + 10j$, where $j = 0, 1, \ldots, 306$, in the flattened input vector, as illustrated in Figure 1. In this manner, the output probability of a class can be viewed as a function interpolation task over approximately 307 pixels of the input image. Calculating the sum over these subsets of evenly-spaced pixels can be optimally achieved using $\left \lceil\log_2(307)\right \rceil = 9$ rotations in total.</p>
+
+<p><img src="https://hackmd.io/_uploads/BJ9PL0JCA.png" alt="CIFAR10-Page-1" /></p>
+
+<p><em><strong>Figure 1</strong>: Pixel selection for efficient class probability computation.</em></p>
+
+<p>However, reducing the number of input dimensions also decreases accuracy, potentially falling below the acceptable threshold. To counteract this, we used multiple fragmented pixels at different offsets to predict class probabilities. Specifically, the probability for the $i$-th class was associated with pixels at positions $i + 10j + \text{offset}$, with $j = 0,\ldots, 306$ and $\text{offset} = 0, \ldots, n_{\text{offset}}$ (Figure 2). A higher $n_{\text{offset}}$ value results in higher prediction accuracy. By experimentally varying $n_{\text{offset}}$, we selected the lowest value yielding over 85% accuracy, which was $n_{\text{offset}} = 3$ for the time-oriented track, and the lowest value achieving 100% accuracy, which was $n_{\text{offset}} = 5$ for the accuracy-oriented track. Consequently, the number of rotation operations required for each track was $\left \lceil\log_2(3 \times 307)\right \rceil + 3 -1 = 12$ and $\left \lceil\log_2(5 \times 307)\right \rceil + 5 -1 = 15$, respectively. By minimizing the number of required rotations, our approach significantly accelerates processing speed compared to other solutions that operate on the full image.</p>
+
+<p><img src="https://hackmd.io/_uploads/BJL-vRJAR.png" alt="CIFAR10-Page-2" /></p>
+
+<p><em><strong>Figure 2</strong>: Pixel selection with different offsets ($n_{\text{offset}} = 3$) for enhanced class probability computation.</em></p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] https://github.com/SynodicMonth/ChebyKAN</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="Privacy-preserving ML" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [FHERMA](https://fherma.io) [CIFAR-10 challenge](https://fherma.io/challenges/652bf663485c878710fd0209).]]></summary></entry><entry><title type="html">Bitwise Shift Left Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/shl/" rel="alternate" type="text/html" title="Bitwise Shift Left Challenge" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-shl</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/shl/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/661643316a54e9817d3706f6">SHL challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The objective of the challenge is to evaluate a bitwise shift left operation on an encrypted integer within the range $[0,2^{16}-1]$. This operation can be defined as $SHL(c_x,c_n) = c_{(x * 2^n) \mod 2^{16}}$, where $c_x$ and $c_n$ are ciphertexts encrypting the input integer $x$ and the number of shifted bits $n$, respectively, in their first slots. The value of $n$ is constrained between 0 and 16. The output ciphertext should encrypt the logical shifted value $SHL(x,n) = (x * 2^n) \mod 2^{16}$ in its first slot, which is also a value in the range $[0,2^{16}-1]$.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>The proposed solution employs a two-way lookup table approach, using $x$ and $n$ as keys and $SHL(x,n)$ as the lookup value. In this way, the computation in the encrypted domain is expressed as:
+\[ SHL(c_x, c_n) = \sum_{i=0}^{2^{16}-1}\left( EQ(c_x, i) \times \sum_{k=0}^{15} EQ(c_n, k) \times SHL(i, k) \right), \]
+where
+\[
+    EQ(a,b) = \begin{cases} 
+        1 &amp; \text{if } a = b \\ 
+        0 &amp; \text{if } a \neq b 
+    \end{cases}
+\]
+is the equality function. Notably, the term for $k=16$ is omitted since the computation naturally returns $0$ when $n=16$, which is the correct result.</p>
+
+<p>To optimize the number of comparisons, we leverage the SIMD property of the underlying BFV/BGV system by transforming the above equation to:
+\[
+	SHL(\mathtt{c}_x,\mathtt{c}_n) = SumSlots\left( EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right) * \sum_{k=0}^{16} EQ\left(Duplicate(\mathtt{c}_n),k\right) * \mathtt{p}^\text{out}_k \right).
+\]</p>
+
+<p>Here the $Duplicate(.)$ function function replicates the value in the first slot of a ciphertext across its first $2^{16}$ slots, while the $SumSlots(.)$ function sums the first $2^{16}$ slots of a ciphertext, placing the result in the first slot. These functions can be implemented using sequencial rotation and addition operations. Additionally, $\mathtt{p}^\text{in}$ is the plaintext that encodes the vector $[0,1,\dots,2^{16}-1]$ containing all possible input values, and $\mathtt{p}^\text{out}_k$ encodes the vector $[SHL(0,k),SHL(1,k),\dots,SHL(2^{16}-1,k)]$ for all possible output values given the shifted amount $k$.</p>
+
+<p>By precompute the plaintexts $\mathtt{p}^\text{out}_k$ for all possible $k$ values, the remaining task is to implement the equality comparison function between a ciphertext and a plaintext value. Due to different ranges of $x$ and $n$, two distinct equality comparison methods are employed for optimal performance. Specifically, Fermat’s Little Theorem (FLT) is used for comparing values in $Duplicate(\mathtt{c}_x)$ and $\mathtt{p}^\text{in}$ (referred to as the outer comparison), while the Lagrange polynomial method is used for comparing $Duplicate(\mathtt{c}_n)$ and $k$ (referred to as the inner comparison).</p>
+
+<h3 id="outer-equality-comparison">Outer Equality Comparison</h3>
+
+<p>The FLT method is utilized to evaluate $EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right)$. This function returns a ciphertext where the $i$-th slot is one if $i$ equals $x$ and zero otherwise. This approach is similar to the FHERMA’s Lookup Table solution <a href="#1">[1]</a>. However, given the input range $[0,2^{16}-1]$, the plaintext modulus $Q$ must be set higher, specifically $Q=786433=3\times2^{18}+1$, to encode the values correctly. To begin with, we subtract $\mathtt{p}^\text{in}$ from $Duplicate(\mathtt{c}_x)$. The resulting ciphertext $c_\text{diff} = (Duplicate(\mathtt{c}_x)-\mathtt{p}^\text{in})$ contains exactly one zero at the $x$-th slot and non-zero values in other slots. We then compute the exponentiation $c_\text{diff}^{3\times2^{18}} = c_\text{diff}^{2^{19}}\times c_\text{diff}^{2^{18}}$, which consumes 20 multiplication levels in total. The final comparison results is obtained by evaluating $1 - c_\text{diff}^{3\times2^{18}}$.</p>
+
+<h3 id="inner-equality-comparison">Inner Equality Comparison</h3>
+
+<p>For a fixed value of $k$ ($0\leq k \leq 15$), the function $EQ\left(Duplicate(\mathtt{c}_n),k\right)$ can be represented by a Lagrange polynomial with integer coefficients $p(z)$, calculated over the interpolation nodes $0,1,\dots,16$ and the corresponding values $p(z) = 1$ at $z=k$ and $0$ elsewhere. The coefficients of $p(n)$ are computed by using modular multiplication and division in the plaintext modulus $Q$. As the degree of $p$ is 17, its evaluation consumes 5 multiplication levels using the Paterson-Stockmeyer algorithm. We modified the <code class="language-plaintext highlighter-rouge">EvalPolyPS</code> from the OpenFHE library to accommodate integer coefficient polynomials.</p>
+
+<p>However, the above approach requires 16 executions of the Paterson-Stockmeyer algorithm, which can be time-consuming. This can be reduced to a single execution in a SIMD fashion. Similar to the outer comparison, we calculate the subtraction $(Duplicate(\mathtt{c}_n) - \mathtt{p}^\text{shift})$, where $\mathtt{p}^\text{shift}$ encodes the vector $[0,1,\dots,15]$ of possible $k$ values. We then compute a Lagrange polynomial $p(.)$ at the interpolation nodes $-16,-15,\dots,0,\dots,15,16$, where the polynomial value is $1$ at zero and $0$ elsewhere. In this way, the transformed ciphertext $p\left( Duplicate(\mathtt{c}_n) - \mathtt{p}^\text{shift}\right)$ is equivalent to $EQ\left(Duplicate(\mathtt{c}_n),\mathtt{p}^\text{shift}\right)$, having a $1$ at the $n$-th slot and $0$ elsewhere. Finally, $EQ\left(Duplicate(\mathtt{c}_n),k\right)$ can be derived from $EQ\left(Duplicate(\mathtt{c}_n),\mathtt{p}^\text{shift}\right)$ for different $k$ values by by applying a mask to extract the $k$-th slot and duplicating it across the first $2^{16}$ slots. This requires only one multiplication and some rotations, without further polynomial evaluation.</p>
+
+<h3 id="extra-level-reduction">Extra Level Reduction</h3>
+
+<p>After evaluating $EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right) = 1 - c_\text{diff}^{3\times2^{18}}$ and the summation of inner comparisons $\sum_{k=0}^{16} EQ\left(Duplicate(\mathtt{c}_n),k\right) * \mathtt{p}^\text{out}_k = \mathtt{c}_\text{sum}$, these results must be multiplied together, which incurs an additional level of computation. To avoid this, the multiplication order can be rearranged as $\mathtt{c}_\text{sum} - c_\text{diff}^{2^{19}} \times\left(c_\text{diff}^{2^{18}} \times \mathtt{c}_\text{sum}\right)$, thus maintaining the total computation depth at 20.</p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] <strong>Lookup Table Challenge</strong> https://fherma.io/content/66d9c84af6ea18c58bf5e97a</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [FHERMA](https://fherma.io) [SHL challenge](https://fherma.io/challenges/661643316a54e9817d3706f6).]]></summary></entry></feed>

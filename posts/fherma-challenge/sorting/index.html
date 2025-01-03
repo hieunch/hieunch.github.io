@@ -1,0 +1,629 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en-US" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>IBM Encrypted Array Sorting Challenge - Chi-Hieu Nguyen</title>
+<meta name="description" content="The article details my winning solution for the IBM Array Sorting challenge.">
+
+
+  <meta name="author" content="Chi-Hieu Nguyen">
+  
+  <meta property="article:author" content="Chi-Hieu Nguyen">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Chi-Hieu Nguyen">
+<meta property="og:title" content="IBM Encrypted Array Sorting Challenge">
+<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/sorting/">
+
+
+  <meta property="og:description" content="The article details my winning solution for the IBM Array Sorting challenge.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2024-11-24T00:00:00+11:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/sorting/">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Chi-Hieu Nguyen Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single" dir="ltr">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Chi-Hieu Nguyen
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/cv.pdf"
+                
+                
+              >CV</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/publications/"
+                
+                
+              >Publications</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/blog_posts/"
+                
+                
+              >Blog Posts</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/demos/"
+                
+                
+              >Demos</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/images/hieu.jpg" alt="Chi-Hieu Nguyen" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">Chi-Hieu Nguyen</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Ph.D. Student at the University of Technology Sydney</p>
+
+      </div>
+    
+
+    <div class="author__urls-wrapper">
+      <!-- <button class="btn btn--inverse">Follow</button> -->
+      <ul class="author__urls social-icons">
+        
+          <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Sydney, Australia</span>
+          </li>
+        
+
+        
+          
+            
+          
+            
+          
+            
+              <li><a href="https://linkedin.com/in/hieu-nguyen-ba6548316" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span class="label">Linkedin</span></a></li>
+            
+          
+            
+              <li><a href="https://scholar.google.com/citations?user=MqGsKf4AAAAJ" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fa-brands fa-fw fa-google-scholar" aria-hidden="true"></i><span class="label">Google Scholar</span></a></li>
+            
+          
+            
+          
+            
+          
+            
+          
+        
+
+        
+
+        
+          <li>
+            <a href="mailto:chihieu2506@gmail.com" rel="me" class="u-email">
+              <meta itemprop="email" content="chihieu2506@gmail.com" />
+              <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+            </a>
+          </li>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="IBM Encrypted Array Sorting Challenge">
+    <meta itemprop="description" content="The article details my winning solution for the IBM Array Sorting challenge.">
+    <meta itemprop="datePublished" content="2024-11-24T00:00:00+11:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">
+            <a href="http://localhost:4000/posts/fherma-challenge/sorting/" itemprop="url">IBM Encrypted Array Sorting Challenge
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66582c7551eafe1a4e6c451b">IBM Array Sorting challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The objective of the challenge is to sort an encrypted array of real values. Sorting under approximate HE, such as the CKKS scheme, presents unique challenges due to the inherent noise introduced by the scheme. This noise grows with each operation, further amplified by the inaccuracies in the polynomial approximations used for comparisons.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>The proposed solution comprises two main steps:</p>
+
+<h3 id="step-1-index-calculation">Step 1: Index Calculation</h3>
+<p>For each value in the array, we determine its target index by counting the number of values smaller than it. This involves pairwise comparisons of all array elements. To facilitate these comparisons, the current value is subtracted from every other value, and the result is passed through an approximated sign function. These pairwise comparisons are performed simultaneously in a SIMD fashion within a single packed ciphertext containing $2^{15} = 32,768$ slots. This process requires several rotations to duplicate values across the ciphertext slots. <strong>Figure 1</strong> illustrates the computation of target indices.</p>
+
+<p><img src="https://hackmd.io/_uploads/SyYzaUXXJg.png" alt="fherma-sorting" /></p>
+
+<p><em><strong>Figure 1</strong>: A toy example illustrating the computation of sorted indices for an input array of size 4.</em></p>
+
+<p>To perform the comparison, we approximate the sign function using a composite polynomial approach as described in <a href="#1">[1]</a>. Specifically, three polynomials of degree 63 are employed to approximate the function within the range $[-255, -0.01] \cup [0.01, 255]$ to satisfy the challenge requirements. <strong>Figure 2</strong> depicts the approximation, with a maximum absolute error below $0.0001$. Polynomial evaluations are done using the baby-step giant-step (BSGS) algorithm <a href="#2">[2]</a> to optimize level consumption. The comparison circuit utilizes 19 levels in total ($1 + 3\lceil\log_2{63}\rceil$), including an additional level for input value scaling. After applying the comparison function, rotation and summation operations are performed to accumulate results and compute the target indices (<strong>Figure 1</strong>).</p>
+
+<p><img src="https://hackmd.io/_uploads/H15bGrm7kl.png" alt="fherma_sorting_4" /></p>
+
+<p><em><strong>Figure 2</strong>: Approximation of the sign function using a composition of three polynomials $p_1, p_2, p_3$ of degree 63.</em></p>
+
+<h3 id="step-2-permutation">Step 2: Permutation</h3>
+<p>A permutation matrix is derived based on the computed indices, as demonstrated in <strong>Figure 3</strong>. This process requires an approximated equality-checking function, which is constructed as a composition of two polynomials with degrees 59 and 62, as shown in <strong>Figure 4</strong>. The array is then rearranged into sorted order using vector-matrix multiplication with the permutation matrix. This step consumes a total of 14 levels, obtained by $\lceil\log_2{59}\rceil + \lceil\log_2{62}\rceil + 2$, where the additional two levels account for multiplication with the permutation matrix and a masking operation.</p>
+
+<p><img src="https://hackmd.io/_uploads/S19BQv7Xyx.png" alt="fherma-sorting-Page-2" /></p>
+
+<p><em><strong>Figure 3</strong>: Computation of the permutation matrix from the indices, followed by the rearrangement of array elements into sorted order.</em></p>
+
+<p><img src="https://hackmd.io/_uploads/S1QfGHmXJg.png" alt="fherma_sorting_5'" /></p>
+
+<p><em><strong>Figure 4</strong>: Approximation of the equality checking function using a composition of three polynomials $p_4,p_5$ of degree 59 and 62.</em></p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] <strong>Lee, Eunsang</strong>, et al. “Minimax approximation of sign function by composite polynomial for homomorphic comparison.” <em>IEEE Transactions on Dependable and Secure Computing</em> 19.6 (2021): 3711-3727.</p>
+
+<p><a name="2"></a>[2] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#fherma-challenge" class="page__taxonomy-item p-category" rel="tag">FHERMA Challenge</a><span class="sep">, </span>
+    
+      <a href="/tags/#homomorphic-encryption" class="page__taxonomy-item p-category" rel="tag">Homomorphic Encryption</a><span class="sep">, </span>
+    
+      <a href="/tags/#ibm-research" class="page__taxonomy-item p-category" rel="tag">IBM Research</a><span class="sep">, </span>
+    
+      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2024-11-24T00:00:00+11:00">November 24, 2024</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  <h4 class="page__share-title">Share on</h4>
+
+  <a href="https://twitter.com/intent/tweet?text=IBM+Encrypted+Array+Sorting+Challenge%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fsorting%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fsorting%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/sorting/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/fherma-challenge/shl/" class="pagination--pager" title="Bitwise Shift Left Challenge">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    
+<div class="page__related">
+  
+  <h2 class="page__related-title">You may also enjoy</h2>
+  <div class="grid__wrapper">
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/shl/" rel="permalink">Bitwise Shift Left Challenge
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my winning solution for the FHERMA SHL challenge.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/cifar10/" rel="permalink">CIFAR-10 Encrypted Image Classification
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my winning solution for the FHERMA CIFAR-10 challenge.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/parity/" rel="permalink">IBM Parity Challenge
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my winning solution for the IBM Parity challenge.
+</p>
+  </article>
+</div>
+
+    
+  </div>
+</div>
+
+  
+  
+</div>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <!-- <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div> -->
+
+<div class="page__footer-copyright">&copy; 2025 <a href="http://localhost:4000">Chi-Hieu Nguyen</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/jekyll-themes/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
