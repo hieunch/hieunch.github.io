@@ -1,0 +1,699 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en-US" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>k-Nearest Neighbors Search - Homepage</title>
+<meta name="description" content="The article details my solution for implementing kNN search over encrypted queries without revealing the data.">
+
+
+  <meta name="author" content="Chi-Hieu Nguyen">
+  
+  <meta property="article:author" content="Chi-Hieu Nguyen">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Homepage">
+<meta property="og:title" content="k-Nearest Neighbors Search">
+<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/knn/">
+
+
+  <meta property="og:description" content="The article details my solution for implementing kNN search over encrypted queries without revealing the data.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2025-05-20T00:00:00+10:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/knn/">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Homepage Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single" dir="ltr">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Homepage
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/cv.pdf"
+                
+                
+              >CV</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/publications/"
+                
+                
+              >Publications</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/blog_posts/"
+                
+                
+              >Blog Posts</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/demos/"
+                
+                
+              >Demos</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/images/hieu.jpg" alt="Chi-Hieu Nguyen" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">Chi-Hieu Nguyen</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Ph.D. Student at the University of Technology Sydney</p>
+
+      </div>
+    
+
+    <div class="author__urls-wrapper">
+      <!-- <button class="btn btn--inverse">Follow</button> -->
+      <ul class="author__urls social-icons">
+        
+          <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Sydney, Australia</span>
+          </li>
+        
+
+        
+          
+            
+          
+            
+          
+            
+              <li><a href="https://linkedin.com/in/hieu-nguyen-ba6548316" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span class="label">Linkedin</span></a></li>
+            
+          
+            
+              <li><a href="https://scholar.google.com/citations?user=MqGsKf4AAAAJ" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fa-brands fa-fw fa-google-scholar" aria-hidden="true"></i><span class="label">Google Scholar</span></a></li>
+            
+          
+            
+          
+            
+          
+            
+          
+        
+
+        
+
+        
+          <li>
+            <a href="mailto:chihieu2506@gmail.com" rel="me" class="u-email">
+              <meta itemprop="email" content="chihieu2506@gmail.com" />
+              <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+            </a>
+          </li>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="k-Nearest Neighbors Search">
+    <meta itemprop="description" content="The article details my solution for implementing kNN search over encrypted queries without revealing the data.">
+    <meta itemprop="datePublished" content="2025-05-20T00:00:00+10:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">
+            <a href="http://localhost:4000/posts/fherma-challenge/knn/" itemprop="url">k-Nearest Neighbors Search
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          7 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/6789154e1597b29897d448a4">k-Nearest Neighbors Search challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>The challenge tasks players with finding the $k$ nearest neighbors of an encrypted 2D vector within a database, using cosine similarity to measure the distance between vectors. Cosine similarity is defined as $d(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{</td>
+      <td>\mathbf{u}</td>
+      <td> </td>
+      <td>\mathbf{v}</td>
+      <td>}$, where $\mathbf{u}$ and $\mathbf{v}$ are vectors, $\cdot$ denotes the dot product, and $</td>
+      <td>\cdot</td>
+      <td>$ represents the Euclidean norm. A common approach to find $k$-nearest neighbors (kNN) in cleartext is to compute the cosine similarity between the query vector and all database vectors, sort the similarities in descending order, and select the top $k$ vectors. This can be optimized using data structures like KD-trees or approximate methods like locality-sensitive hashing for efficiency.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>However, a naive implementation of such an algorithm in the HE domain may incur significant overhead due to the high computational cost of encrypted arithmetic operations, the need for deep circuits to evaluate non-linear functions like division and square roots in cosine similarity, limited support for comparison and sorting operations, and the increased ciphertext size and noise growth in HE schemes.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>We adopted an approximated approach that simplifies the kNN problem into a lookup table. This is based on the observation that two vectors are likely to share similar neighbors if the angle between them is small. In particular, we partition the 2D plane into $M$ uniform angular sectors, defined by a set of $M$ vectors ${\mathbf{v}<em>0, \mathbf{v}_1, \dots, \mathbf{v}</em>{M-1}}$, where each $\mathbf{v}<em>i$ is equally spaced at angles $\frac{2\pi i}{M}$ from the origin. Here, the $i$-th sector is the sector between $\mathbf{v}</em>{i-1}$ and $\mathbf{v}_i$. The neighbor set of a sector is defined as the $k$ nearest neighbors of its bisector ray, precomputed during initialization. For a query vector $\mathbf{x}$, we identify the sector it falls into by computing its angle relative to the origin and return the precomputed neighbors of that sector as its approximate neighbors. Figure 1 illustrates this partitioning approach.</p>
+
+<p><img src="https://hackmd.io/_uploads/rJP5ci_-gx.png" alt="sector_partition" />
+<em><strong>Figure 1</strong>: Illustration of the angular sector partitioning approach with $M=50$ sectors.</em></p>
+
+<p>Given a 2D query vector $\mathbf{x}$, we can determine if it falls into the $i$-th sector by evaluating the dot products $\mathbf{x} \cdot \mathbf{v}<em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ and checking if these values have opposite signs. In the HE domain, this check can be translated to computing the product of the dot products, i.e., $(\mathbf{x} \cdot \mathbf{v}</em>{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}<em>i) = (x[0]v</em>{i-1}[0] + x[1]v_{i-1}[1]) * (x[0]v_i[0] + x[1]v_i[1])$, using basic HE operations. We then apply an approximation of the sign function to the result to check if the value is negative, confirming sector membership.</p>
+
+<p>It’s straightforward that the accuracy of the prediction increases as the number of sectors increases, though this comes at the cost of higher computational requirements. At a very large number of clusters, the accuracy approaches perfection, but the computational cost may become excessively high. However, given the nonuniform distribution of data points, we can employ a nonuniform clustering approach to reduce the number of clusters. This involves denser partitioning in directions with more points and coarser partitioning in less populated areas. Specifically, we start with a high-resolution partition of $M=5000000$ clusters, which achieves perfect accuracy, and then gradually reduce the number of clusters by merging consecutive clusters that share the same set of $k$ nearest neighbors. This process is repeated until no further merging is possible, resulting in $M=1001$ clusters after the procedure, significantly reducing the computational overhead. Figure 2 shows an illustration of the resulting nonuniform partition. The high-level pseudocode for reducing the number of clusters is as follows</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; For each sector:
+&gt;     Compute k nearest neighbors of the sector's center
+&gt;     Store the neighbor set in a map
+&gt; 
+&gt; Sort sectors in ascending order of start angle
+&gt; 
+&gt; Initialize an empty list for merged sectors
+&gt; While there are sectors to process:
+&gt;     Group consecutive sectors with the same k-NN set
+&gt;     Merge each group into a single sector
+&gt;     Add the merged sector to the list
+&gt; Update the sector list with the merged sectors
+</code></pre></div></div>
+
+<p><img src="https://hackmd.io/_uploads/BkDDd3dWeg.png" alt="nonuniform" />
+<em><strong>Figure 2</strong>: Illustration of the resulting nonuniform partition after merging clusters.</em></p>
+
+<h2 id="he-implementation">HE Implementation</h2>
+
+<p>We now describe the HE implementation for determining the sector of a query vector $\mathbf{x}$ and mapping it to the corresponding precomputed $k$ nearest neighbors, using the sector-based approximation approach. The process is broken down into multiple steps as follows.</p>
+
+<ul>
+  <li><strong>Step 0:</strong> The process starts with a ciphertext $\text{ct}_\mathbf{x}$ containing the 2D query vector $\mathbf{x} = [x[0], x[1]]$. The components $x[0]$ and $x[1]$ are placed in the first two slots of the ciphertext, with all subsequent slots set to zero.</li>
+  <li><strong>Step 1: Replicate the query vector across slots</strong>
+  To enable simultaneous computation across multiple sectors, the query vector $\mathbf{x}$ is replicated across the ciphertext slots. After replication, each pair of slots in $\text{ct}_\mathbf{x}$ (e.g., slots 0–1, 2–3, etc.) contains the values $[x[0], x[1]]$.</li>
+  <li><strong>Step 2: Make a plaintext for sector boundary vectors</strong>
+  A plaintext $\text{pt}_\mathbf{v}$ is created to store the sector boundary vectors ${\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_M}$. For each sector $i$, the vector $\mathbf{v}_i$ is placed in specific slot pairs. For example, slots from $32i$ to $32i+31$ corresponding to sector $i$ will contain the replications of $[\mathbf{v}_i[0], \mathbf{v}_i[1]]$. This allows for the computation of dot products with consecutive sector boundaries.</li>
+  <li><strong>Step 3: Compute dot products with sector boundaries</strong>
+  For each sector $i$, the dot products $\mathbf{x} \cdot \mathbf{v}<em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ are computed in the HE domain. This involves element-wise subtraction between the replicated query vector and the sector boundary vectors, followed by rotation and multiplication. Specifically, the dot product $\mathbf{x} \cdot \mathbf{v}_i$ is calculated as $(\text{ct}</em>\mathbf{x}-\text{pt}<em>\mathbf{v})*\text{Rotate}(\text{ct}</em>\mathbf{x}-\text{pt}_\mathbf{v}, 1)$.</li>
+  <li><strong>Step 4: Determine the sign of dot products</strong>
+  To check if $\mathbf{x}$ lies between $\mathbf{v}<em>{i-1}$ and $\mathbf{v}_i$, we need to determine if the dot products $\mathbf{x} \cdot \mathbf{v}</em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ have opposite signs. An approximation of the sign function is evalutated over the dot product results using Paterson-Stockmeyer algorithm, converting the numerical dot products into boolean indicators (1 if the dot product is positive and 0 if negative).</li>
+  <li><strong>Step 5: Identify sector</strong>
+  The sector membership test relies on the fact that $\mathbf{x}$ lies in sector $i$ if $(\mathbf{x} \cdot \mathbf{v}_{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}_i) &lt; 0$, indicating opposite signs. In the HE domain, this is implemented by multiplying the sign indicators of the two dot products. If the product is 1 (i.e., one sign is positive and the other negative), $\mathbf{x}$ is confirmed to be in sector $i$.</li>
+  <li><strong>Step 6: Map to precomputed neighbors</strong>
+  Once the sector of $\mathbf{x}$ is identified, the precomputed $k$ nearest neighbors associated with that sector are retrieved. These neighbors were calculated during the preprocessing phase for each sector’s bisector ray. The neighbor sets are encoded into a single plaintext and is assigned to the slots corresponding to the identified sector by multiplication, ensuring that the output ciphertext only contains the approximate $k$ nearest neighbors of $\mathbf{x}$.</li>
+  <li><strong>Step 7: Accumulate neighbors to the first 10 slots using rotation</strong></li>
+</ul>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#fherma-challenge" class="page__taxonomy-item p-category" rel="tag">FHERMA Challenge</a><span class="sep">, </span>
+    
+      <a href="/tags/#homomorphic-encryption" class="page__taxonomy-item p-category" rel="tag">Homomorphic Encryption</a><span class="sep">, </span>
+    
+      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2025-05-20T00:00:00+10:00">May 20, 2025</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  <h4 class="page__share-title">Share on</h4>
+
+  <a href="https://twitter.com/intent/tweet?text=k-Nearest+Neighbors+Search%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fknn%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fknn%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/knn/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/fherma-challenge/house-price/" class="pagination--pager" title="House Price Prediction">Previous</a>
+    
+    
+      <a href="/posts/fherma-challenge/sentiment/" class="pagination--pager" title="Sentiment Analysis">Next</a>
+    
+  </nav>
+
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    
+<div class="page__related">
+  
+  <h2 class="page__related-title">You may also enjoy</h2>
+  <div class="grid__wrapper">
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/gelu/" rel="permalink">GELU Function over Encrypted Data
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/sentiment/" rel="permalink">Sentiment Analysis
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE model for tweet sentiment classification.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/house-price/" rel="permalink">House Price Prediction
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE regression model for estimating housing prices.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/matrix-inversion/" rel="permalink">Encrypted Matrix Inversion
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          6 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for performing efficient inversion of encrypted matrices.
+</p>
+  </article>
+</div>
+
+    
+  </div>
+</div>
+
+  
+  
+</div>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <!-- <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div> -->
+
+<div class="page__footer-copyright">&copy; 2025 <a href="http://localhost:4000">Homepage</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/jekyll-themes/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

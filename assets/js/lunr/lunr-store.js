@@ -22,4 +22,40 @@ var store = [{
         "tags": ["FHERMA Challenge","Homomorphic Encryption","IBM Research","OpenFHE"],
         "url": "/posts/fherma-challenge/sorting/",
         "teaser": "/assets/images/placeholder.jpg"
+      },{
+        "title": "Ethereum Fraud Detection via SVM",
+        "excerpt":"The article details my winning solution for the Private Fraud Detection challenge. Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements. Author: Chi-Hieu Nguyen, University of Technology Sydney, Australia. Introduction The challenge requires training a SVM model on a...","categories": [],
+        "tags": ["FHERMA Challenge","Homomorphic Encryption","OpenFHE"],
+        "url": "/posts/fherma-challenge/ethsvm/",
+        "teaser": "/assets/images/placeholder.jpg"
+      },{
+        "title": "Encrypted Matrix Inversion",
+        "excerpt":"The article details my winning solution for the Invertible Matrix challenge. Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements. Introduction Matrix inversion is a cornerstone of linear algebra, but performing it on encrypted data using HE presents unique...","categories": [],
+        "tags": ["FHERMA Challenge","Homomorphic Encryption","OpenFHE"],
+        "url": "/posts/fherma-challenge/matrix-inversion/",
+        "teaser": "/assets/images/placeholder.jpg"
+      },{
+        "title": "House Price Prediction",
+        "excerpt":"The article details my winning solution for the House Price Prediction challenge. Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements. Introduction The challenge requires developing a regression model to predict housing prices while ensuring privacy through HE. The...","categories": [],
+        "tags": ["FHERMA Challenge","Homomorphic Encryption","OpenFHE"],
+        "url": "/posts/fherma-challenge/house-price/",
+        "teaser": "/assets/images/placeholder.jpg"
+      },{
+        "title": "k-Nearest Neighbors Search",
+        "excerpt":"The article details my winning solution for the k-Nearest Neighbors Search challenge. Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements. Introduction The challenge tasks players with finding the $k$ nearest neighbors of an encrypted 2D vector within a...","categories": [],
+        "tags": ["FHERMA Challenge","Homomorphic Encryption","OpenFHE"],
+        "url": "/posts/fherma-challenge/knn/",
+        "teaser": "/assets/images/placeholder.jpg"
+      },{
+        "title": "Sentiment Analysis",
+        "excerpt":"The article details my winning solution for the Sentiment Analysis challenge. Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements. Introduction This challenge aims at developing a HE-enabled classifier for NLP tasks, namely to predict the sentiment polarity (positive,...","categories": [],
+        "tags": ["FHERMA Challenge","Homomorphic Encryption","OpenFHE"],
+        "url": "/posts/fherma-challenge/sentiment/",
+        "teaser": "/assets/images/placeholder.jpg"
+      },{
+        "title": "GELU Function over Encrypted Data",
+        "excerpt":"The article details my winning solution for the GELU Function challenge. Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements. Introduction The challenge requires implementing the GeLU activation function, widely used in deep learning, under homomorphic encryption. According to...","categories": [],
+        "tags": ["FHERMA Challenge","Homomorphic Encryption","OpenFHE"],
+        "url": "/posts/fherma-challenge/gelu/",
+        "teaser": "/assets/images/placeholder.jpg"
       }]

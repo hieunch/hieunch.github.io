@@ -10,8 +10,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>CIFAR-10 Encrypted Image Classification - Homepage</title>
-<meta name="description" content="The article details my winning solution for the FHERMA CIFAR-10 challenge.">
+<!-- begin _includes/seo.html --><title>House Price Prediction - Homepage</title>
+<meta name="description" content="The article details my solution for building an FHE regression model for estimating housing prices.">
 
 
   <meta name="author" content="Chi-Hieu Nguyen">
@@ -23,30 +23,30 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Homepage">
-<meta property="og:title" content="CIFAR-10 Encrypted Image Classification">
-<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/cifar10/">
+<meta property="og:title" content="House Price Prediction">
+<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/house-price/">
 
 
-  <meta property="og:description" content="The article details my winning solution for the FHERMA CIFAR-10 challenge.">
-
-
-
-
-
-
-
-  <meta property="article:published_time" content="2024-09-24T00:00:00+10:00">
+  <meta property="og:description" content="The article details my solution for building an FHE regression model for estimating housing prices.">
 
 
 
 
 
-  
+
+
+  <meta property="article:published_time" content="2025-05-20T00:00:00+10:00">
+
+
+
+
 
   
 
+  
 
-<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/cifar10/">
+
+<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/house-price/">
 
 
 
@@ -292,16 +292,16 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="CIFAR-10 Encrypted Image Classification">
-    <meta itemprop="description" content="The article details my winning solution for the FHERMA CIFAR-10 challenge.">
-    <meta itemprop="datePublished" content="2024-09-24T00:00:00+10:00">
+    <meta itemprop="headline" content="House Price Prediction">
+    <meta itemprop="description" content="The article details my solution for building an FHE regression model for estimating housing prices.">
+    <meta itemprop="datePublished" content="2025-05-20T00:00:00+10:00">
     
 
     <div class="page__inner-wrap">
       
         <header>
           <h1 id="page-title" class="page__title" itemprop="headline">
-            <a href="http://localhost:4000/posts/fherma-challenge/cifar10/" itemprop="url">CIFAR-10 Encrypted Image Classification
+            <a href="http://localhost:4000/posts/fherma-challenge/house-price/" itemprop="url">House Price Prediction
 </a>
           </h1>
           
@@ -318,7 +318,7 @@
       <span class="page__meta-readtime">
         <i class="far fa-clock" aria-hidden="true"></i>
         
-          4 minute read
+          3 minute read
         
       </span>
     
@@ -330,44 +330,41 @@
 
       <section class="page__content" itemprop="text">
         
-        <p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/652bf663485c878710fd0209">CIFAR-10 challenge</a>.</em> 
+        <p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/676035a7890eef39561cf7c9">House Price Prediction challenge</a>.</em> <br />
 <em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
 
-<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
-
 <h2 id="introduction">Introduction</h2>
-
-<p>The challenge task involves inferring the class of an encrypted input image, a problem situated within the domain of privacy-preserving machine learning inference. This area has recently garnered significant interest from both academia and industry. The challenge is based on a public dataset, allowing unrestricted use of training data. Consequently, one could attempt to overfit a machine learning model on the entire set of 60,000 CIFAR images (comprising 50,000 training images and 10,000 testing images) to achieve optimal accuracy. This important point makes public implementations of HE image classification, which are based on conventional neural networks (e.g., CNN, ResNet), too complex to be directly used as a competitive solution.</p>
+<p>The challenge requires developing a regression model to predict housing prices while ensuring privacy through HE. The task involves training a model on an unencrypted dataset and performing inference on encrypted data. This addresses the critical need for privacy-preserving machine learning in real estate, where datasets often contain sensitive information.</p>
 
 <h2 id="model-selection">Model Selection</h2>
 
-<p>We experimented with various neural network architectures and ultimately decided to use the Kolmogorov-Arnold Network (KAN). Compared to traditional multilayer perceptron networks, KAN requires fewer model parameters and performs well in signal/function regression or interpolation tasks, making it well-suited for this challenge. To enhance evaluation efficiency, we adopted a variant of KAN based on Chebyshev polynomials, known as ChebyKAN [1]. The Chebyshev basis can be efficiently computed using recursive formulas, thereby reducing computational costs and minimizing ciphertext level consumption.</p>
+<p>We selected the Kolmogorov-Arnold Network (KAN) for its efficiency in regression tasks and its compact architecture, which requires fewer parameters than conventional neural networks such as multilayer perceptrons. Specifically, we adopted a Chebyshev polynomial-based variant known as ChebyKAN [1], which replaces the original spline-based activations in KAN with Chebyshev polynomials. This substitution not only preserves the expressive power of the model but also ensures compatibility with HE schemes. Chebyshev polynomials can be evaluated efficiently using recursive relations and are well-suited for encrypted computation, as they avoid the complexities introduced by spline interpolation. As a result, ChebyKAN significantly reduces both computational overhead and ciphertext level consumption, making it ideal for privacy-preserving inference under HE.</p>
+
+<h2 id="model-architecture">Model Architecture</h2>
+
+<p>The ChebyKAN model used is a two-layer neural network implemented in PyTorch, with each layer incorporating Chebyshev polynomial operations for non-linear regression.</p>
+<ul>
+  <li><strong>Input Normalization:</strong> A min-max scaler maps input features to the range [-0.8, 0.8] (instead of the standard [-1, 1]) to provide a safety margin, preventing overflow when processing unseen test samples during encrypted inference.</li>
+  <li><strong>First Layer:</strong> Transforms the normalized inputs into a hidden representation by computing weighted sums of Chebyshev polynomials.</li>
+  <li><strong>Activation:</strong> Applies a scaled hyperbolic tangent activation ($0.9\tanh(\cdot)$) to constrain outputs within [-0.9, 0.9], ensuring numerical stability and preventing overflow .</li>
+  <li><strong>Second Layer:</strong> Aggregates the hidden representations to generate the final price prediction using Chebyshev-based polynomial transformation.</li>
+</ul>
 
 <h2 id="model-training">Model Training</h2>
 
-<p>We trained a KAN network with a single layer of learnable activation functions. To optimize runtime, we sought the lowest possible activation degree that could still achieve 100% prediction accuracy. The training code was adapted from a GitHub repository <a href="#1">[1]</a>. We successfully trained the model to a degree of 8, which required a multiplication depth of 5: one for normalizing the input vector and four for evaluating the Chebyshev polynomials.</p>
+<p>Training procedures were adapted from an open-source implementation [1]. We conducted a grid search over the polynomial degrees and hidden layer sizes to maximize performance, measured by the $R^2$ score on a validation set. The best configuration identified through this process used a hidden dimension of 32 and a Chebyshev polynomial degree of 7.</p>
 
-<h2 id="optimization">Optimization</h2>
+<h2 id="model-ensembling">Model Ensembling</h2>
 
-<p>Given that the input vector consists of 3,072 elements (from a 32x32 image with three channels), the minimum ring dimension we could use in the challenge was 8,192, with up to 4,096 plaintext slots to encrypt the entire input vector. We aimed to work with this lowest ring dimension to minimize complexity and maximize computation speed.</p>
+<p>To improve prediction robustness and accuracy, we trained multiple ChebyKAN models with different random initializations and combined their outputs using an ensemble approach. Predictions from individual models were aggregated through a weighted combination, with the weights optimized via the L-BFGS-B algorithm to maximize the ensemble’s $R^2$ score. This ensemble strategy mitigates model variance and achieves superior predictive performance compared to any single model.</p>
 
-<p>We observed that the dominant HE operator during inference was the rotation operator, which necessitates costly key-switching calculations. Theoretically, to compute the sum over a vector of $N$ elements packed in a single ciphertext, one must perform $\log_2(N)$ rotations using the folding technique. With an input dimension of 3,072 and an output dimension of 10 classes, the first layer’s forward pass (calculating 10 different summations for the 10 classes) would require at least $\left \lceil\log_2(3,072)\right \rceil + 10 - 1 = 21$ rotations at a ring dimension of 8,192. To reduce this number and expedite the inference process, our idea is to infer the probability for each output class based on subsampled portions of the input image.</p>
+<h2 id="he-inference">HE Inference</h2>
 
-<p>Specifically, the output probability for the $i$-th class was computed from pixels located at indices $i + 10j$, where $j = 0, 1, \ldots, 306$, in the flattened input vector, as illustrated in Figure 1. In this manner, the output probability of a class can be viewed as a function interpolation task over approximately 307 pixels of the input image. Calculating the sum over these subsets of evenly-spaced pixels can be optimally achieved using $\left \lceil\log_2(307)\right \rceil = 9$ rotations in total.</p>
-
-<p><img src="https://hackmd.io/_uploads/BJ9PL0JCA.png" alt="CIFAR10-Page-1" /></p>
-
-<p><em><strong>Figure 1</strong>: Pixel selection for efficient class probability computation.</em></p>
-
-<p>However, reducing the number of input dimensions also decreases accuracy, potentially falling below the acceptable threshold. To counteract this, we used multiple fragmented pixels at different offsets to predict class probabilities. Specifically, the probability for the $i$-th class was associated with pixels at positions $i + 10j + \text{offset}$, with $j = 0,\ldots, 306$ and $\text{offset} = 0, \ldots, n_{\text{offset}}$ (Figure 2). A higher $n_{\text{offset}}$ value results in higher prediction accuracy. By experimentally varying $n_{\text{offset}}$, we selected the lowest value yielding over 85% accuracy, which was $n_{\text{offset}} = 3$ for the time-oriented track, and the lowest value achieving 100% accuracy, which was $n_{\text{offset}} = 5$ for the accuracy-oriented track. Consequently, the number of rotation operations required for each track was $\left \lceil\log_2(3 \times 307)\right \rceil + 3 -1 = 12$ and $\left \lceil\log_2(5 \times 307)\right \rceil + 5 -1 = 15$, respectively. By minimizing the number of required rotations, our approach significantly accelerates processing speed compared to other solutions that operate on the full image.</p>
-
-<p><img src="https://hackmd.io/_uploads/BJL-vRJAR.png" alt="CIFAR10-Page-2" /></p>
-
-<p><em><strong>Figure 2</strong>: Pixel selection with different offsets ($n_{\text{offset}} = 3$) for enhanced class probability computation.</em></p>
+<p>For encrypted inference, we customized the Baby-Step Giant-Step (BSGS) algorithm to efficiently evaluate Chebyshev polynomials on encrypted data. By using plaintext coefficient vectors and SIMD evalutation, our modified BSGS approach enables simultaneous evaluations of multiple polynomials across different inputs. The method requires only three multiplicative levels to evaluate Chebyshev polynomials of degree 7, minimizing the depth required for inference.</p>
 
 <h2 id="references">References</h2>
 
-<p><a name="1"></a>[1] https://github.com/SynodicMonth/ChebyKAN</p>
+<p>[1] https://github.com/SynodicMonth/ChebyKAN</p>
 
         
       </section>
@@ -388,9 +385,7 @@
     
       <a href="/tags/#homomorphic-encryption" class="page__taxonomy-item p-category" rel="tag">Homomorphic Encryption</a><span class="sep">, </span>
     
-      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a><span class="sep">, </span>
-    
-      <a href="/tags/#privacy-preserving-ml" class="page__taxonomy-item p-category" rel="tag">Privacy-preserving ML</a>
+      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a>
     
     </span>
   </p>
@@ -400,28 +395,28 @@
 
         
 
-  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2024-09-24T00:00:00+10:00">September 24, 2024</time></p>
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2025-05-20T00:00:00+10:00">May 20, 2025</time></p>
 
       </footer>
 
       <section class="page__share">
   <h4 class="page__share-title">Share on</h4>
 
-  <a href="https://twitter.com/intent/tweet?text=CIFAR-10+Encrypted+Image+Classification%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fcifar10%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=House+Price+Prediction%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fhouse-price%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fcifar10%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fhouse-price%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/cifar10/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/house-price/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
       
   <nav class="pagination">
     
-      <a href="/posts/fherma-challenge/parity/" class="pagination--pager" title="IBM Parity Challenge">Previous</a>
+      <a href="/posts/fherma-challenge/matrix-inversion/" class="pagination--pager" title="Encrypted Matrix Inversion">Previous</a>
     
     
-      <a href="/posts/fherma-challenge/shl/" class="pagination--pager" title="Bitwise Shift Left Challenge">Next</a>
+      <a href="/posts/fherma-challenge/knn/" class="pagination--pager" title="k-Nearest Neighbors Search">Next</a>
     
   </nav>
 
@@ -588,7 +583,7 @@
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/posts/fherma-challenge/house-price/" rel="permalink">House Price Prediction
+        <a href="/posts/fherma-challenge/matrix-inversion/" rel="permalink">Encrypted Matrix Inversion
 </a>
       
     </h2>
@@ -606,14 +601,14 @@
       <span class="page__meta-readtime">
         <i class="far fa-clock" aria-hidden="true"></i>
         
-          3 minute read
+          6 minute read
         
       </span>
     
   </p>
 
 
-    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE regression model for estimating housing prices.
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for performing efficient inversion of encrypted matrices.
 </p>
   </article>
 </div>

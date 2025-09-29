@@ -1,4 +1,424 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-01-03T02:40:25+11:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Chi-Hieu Nguyen</title><subtitle>Ph.D Student at the University of Technology Sydney</subtitle><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><entry><title type="html">IBM Encrypted Array Sorting Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/sorting/" rel="alternate" type="text/html" title="IBM Encrypted Array Sorting Challenge" /><published>2024-11-24T00:00:00+11:00</published><updated>2024-11-24T00:00:00+11:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-sorting</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/sorting/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66582c7551eafe1a4e6c451b">IBM Array Sorting challenge</a>.</em> <br />
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-09-30T00:29:24+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Homepage</title><subtitle>Ph.D Student at the University of Technology Sydney</subtitle><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><entry><title type="html">GELU Function over Encrypted Data</title><link href="http://localhost:4000/posts/fherma-challenge/gelu/" rel="alternate" type="text/html" title="GELU Function over Encrypted Data" /><published>2025-09-05T00:00:00+10:00</published><updated>2025-09-05T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-gelu</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/gelu/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/683eaf48eed44a699f640a92">GELU Function challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The challenge requires implementing the GeLU activation function, widely used in deep learning, under homomorphic encryption. According to the challenge description, input data are sampled from the domain $[-7,7]$ following a normal distribution. Accuracy is evaluated by counting the number of slots in the output vector where the absolute error is below $0.001$.</p>
+
+<h2 id="polynomial-approximation">Polynomial Approximation</h2>
+
+<p>We adopt a minimax approximation, e.g., using Remez algorithm, to approximate the GeLU function over the target domain, ensuring 100% accuracy across the entire range. By progressively increasing the polynomial degree, we determine that degree 22 is the minimum required to satisfy the error threshold, achieving a maximum error of $4.4 \times 10^{-4}$. <strong>Figure 1</strong> illustrates the degree-22 polynomial approximation and the corresponding absolute error. The coefficients, expressed in the Chebyshev basis, are as follows</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p = [2.205108264359930015e+00, 3.499999999999999556e+00, 1.528721347815146681e+00, -1.647976405698982102e-15, -3.325936224062873703e-01, 1.437489594390790025e-15, 1.521190036383314459e-01, -8.453684227375073390e-16, -8.430346518496759090e-02, -1.673523292483670998e-15, 4.886015896854042917e-02, 2.863693178149025070e-15, -2.791811221502403864e-02, -1.859411993163826857e-15, 1.532346888698131633e-02, -5.949712581611852003e-16, -7.993026213095437427e-03, -1.551375849918958677e-15, 3.952491617355435687e-03, -1.336721660511636056e-16, -1.857562051847814338e-03, 3.326019639171002269e-15, 1.023308862034017419e-03]
+</code></pre></div></div>
+
+<p><img src="https://hackmd.io/_uploads/r1dadCS5gx.png" alt="gelu" /></p>
+
+<p><em><strong>Figure 1</strong>: (Top) Degree-22 polynomial approximation of the GeLU function. (Bottom) Absolute approximation error across the domain.</em></p>
+
+<h2 id="polynomial-evaluation">Polynomial Evaluation</h2>
+
+<p>An important observation is that $,\text{GELU}(x) - \tfrac{x}{2},$ is an even function. Consequently, all odd coefficients of the approximated polynomial $p(x)$ are negligibly small, except for the coefficient of $x$, as reflected in the coefficients above. Leveraging this property, we can accelerate evaluation under HE by computing the second Chebyshev polynomial $T_2(x) = 2x^2 - 1$ and then expressing the polynomial as $p_{\text{even}}(T_2(x))+c_1x = p(x)$, where $p_{\text{even}}$ is a degree-11 polynomial obtained from the even coefficients of $p$. This reduces the effective polynomial degree from 22 to 11, thereby significantly lowering evaluation time.</p>
+
+<p>To evaluate $p_{\text{even}}$, one can use the default Paterson–Stockmeyer (PS) algorithm in OpenFHE. Instead, we introduce a binary-tree product decomposition strategy that preserves the ciphertext–ciphertext (CC) multiplication complexity while providing substantially greater parallelism. In this method, we first convert $p_{\text{even}}$ to the monomial basis, obtained as follows</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p_even = [0.00044269650031170116, 0.39574328076312115, -0.0629733653564327, 0.008364135635608984, -0.0007825494992434453, 5.1058610337019434e-05, -2.315976838992098e-06, 7.235122296125314e-08, -1.5214882476900954e-09, 2.0523115610681066e-11, -1.6012937509370233e-13, 5.488829795459728e-16]
+</code></pre></div></div>
+
+<p>In this form, the target polynomial is evaluated as $p(x) = p_{\text{even}}(x^2) + c_1x$. Let $c_{11}$ denote the leading coefficient of $p_{\text{even}}$, i.e., the coefficient of $x^{11}$ in $p_{\text{even}}(x)$ (equivalently, the coefficient of $x^{22}$ in $p(x)$). We normalize this coefficient to unity by rewriting
+\(p_{\text{even}}(x^2) = \tilde{p}_{\text{even}}\!\left(\left(\tfrac{x}{c_{11}^{1/22}}\right)^2\right),\)
+where the coefficients of the normalized polynomial $\tilde{p}_{\text{even}}$ are given by
+\(\tilde{c}_i = \frac{c_i}{c_{11}^{i/11}}, \quad i=0,1,\dots,11.\)</p>
+
+<p>The resulting coefficients are:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p_tilde_even = [0.00044269650031170116, 9.654584128641837, -37.479772490316186, 121.44541723640373, -277.1991560769019, 441.23412948943434, -488.2635908159109, 372.12258290089426, -190.91004230296397, 62.82369627660221, -11.95834898654424, 1.0000000000000009]
+</code></pre></div></div>
+
+<p>This transformation ensures that the leading coefficient is normalized to one. Next, $\tilde{p}_{\text{even}}$ is factored into five quadratic polynomials and one linear polynomial:
+\(\tilde{p}_{\text{even}}(x) = (x^2+b_1x+a_1)\dots(x^2+b_5x+a_5)(x+a_6).\)
+Each of these six factor polynomials is computed concurrently using OpenMP. The corresponding C++ implementation is shown below:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Scale input x by c_{11}^(1/22) = (5.488829795459728e-16)^(1/22)</span>
+<span class="k">auto</span> <span class="n">x</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_InputC</span><span class="p">,</span> <span class="mf">0.20246035278443494</span><span class="p">);</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalSquare</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">x_square</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalSquare</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+<span class="c1">// Define factor coefficients</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="p">{</span><span class="mf">5.569522767147481</span><span class="p">,</span> <span class="mf">4.210402755985315</span><span class="p">,</span> <span class="mf">0.19986968808436417</span><span class="p">,</span> <span class="mf">0.8830278939922745</span><span class="p">,</span> <span class="mf">2.333178076905341</span><span class="p">,</span> <span class="mf">4.584534226472708e-05</span><span class="p">};</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">B</span> <span class="o">=</span> <span class="p">{</span><span class="o">-</span><span class="mf">4.6890748970212295</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.8468619742495944</span><span class="p">,</span> <span class="mf">0.006438840954910282</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.9788392119088897</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.4500575896613714</span><span class="p">};</span>
+
+<span class="cp">#pragma omp parallel for
+</span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Compute (x + a_6)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">GetScheme</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">LevelReduceInternalInPlace</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Compute (x^2 + b_i x + a_i)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAddInPlace</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x_square</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notably, $x^2$ is computed only once and reused across factors, requiring only a single CC multiplication for all six factor polynomials.</p>
+
+<p>The factors are then combined using binary-tree multiplication in a depth-optimal manner:
+$\tilde{p}<em>{\text{even}}^{1,2}(x) = (cx^2+b_1x+a_1)(cx^2+b_2x+a_2)$,
+$\tilde{p}</em>{\text{even}}^{3,4}(x) = (cx^2+b_3x+a_3)(cx^2+b_4x+a_4)$,
+$\tilde{p}<em>{\text{even}}^{5,6}(x) = (cx^2+b_5x+a_5)(x+a_6)$,
+$\tilde{p}</em>{\text{even}}^{3,4,5,6}(x) = \tilde{p}<em>{\text{even}}^{3,4}(x)\tilde{p}</em>{\text{even}}^{5,6}(x)$,
+$\tilde{p}<em>{\text{even}}(x) = \tilde{p}</em>{\text{even}}^{1,2}(x)\tilde{p}<em>{\text{even}}^{3,4,5,6}(x)$.
+This procedure requires 5 CC multiplications for the binary-tree stage, resulting in a total of 6 multiplications for the entire polynomial, which is identical to the PS algorithm. Notably, the evaluation of $\tilde{p}</em>{\text{even}}^{1,2}$, $\tilde{p}<em>{\text{even}}^{3,4}$, and $\tilde{p}</em>{\text{even}}^{5,6}$ can also be performed in parallel. This enhanced concurrency results in an approximate 30% performance improvement over the PS approach.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.]]></summary></entry><entry><title type="html">Sentiment Analysis</title><link href="http://localhost:4000/posts/fherma-challenge/sentiment/" rel="alternate" type="text/html" title="Sentiment Analysis" /><published>2025-08-15T00:00:00+10:00</published><updated>2025-08-15T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-sentiment</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/sentiment/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/681b3ff2da06abf28988891d">Sentiment Analysis challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>This challenge aims at developing a HE-enabled classifier for NLP tasks, namely to predict the sentiment polarity (positive, negative, or neutral) of an encrypted query vector derived from a user tweet. Participants are provided with a non-encrypted training dataset to train a multiclass classification model. The trained model is then adapted for privacy-preserving inference, enabling prediction on encrypted inputs from a private test set.</p>
+
+<h2 id="model-selection">Model Selection</h2>
+
+<p>We first implemented a 3-layer MLP classifier as a baseline, achieving an F1-score of approximately 75%. However, MLPs involve multiple vector-matrix multiplications and non-linear activation functions, which can result in high computational overhead when adapted for HE operations. As an alternative, we explored the ChebyKAN architecture, previously applied in our winning solution to the <a href="https://fherma.io/content/682c2c423e4a37c9c28266c6">House Price Prediction Challenge</a>. ChebyKAN employs per-edge learnable Chebyshev polynomial activations, making it more HE-friendly and parameter-efficient compared to traditional MLPs. Although KAN architectures are generally reported to underperform MLPs in various ML and NLP tasks [1], our experiments demonstrated comparable performance between ChebyKAN and the baseline MLP. Given its lower HE computational cost, we selected ChebyKAN as our final model.</p>
+
+<h2 id="model-architecture">Model Architecture</h2>
+
+<p>We trained a 2-layer ChebyKAN with the following components:</p>
+<ul>
+  <li><strong>Input Normalization:</strong> A min-max scaler maps input features to the range [-0.8, 0.8] (instead of the standard [-1, 1]) to provide a safety margin, preventing overflow when processing unseen test samples during encrypted inference.</li>
+  <li><strong>First Layer:</strong> Transforms the normalized inputs into a hidden representation by computing weighted sums of Chebyshev polynomials.</li>
+  <li><strong>Activation:</strong> Applies a scaled hyperbolic tangent activation ($0.9\tanh(\cdot)$) to constrain outputs within [-0.9, 0.9], ensuring numerical stability and preventing overflow .</li>
+  <li><strong>Second Layer:</strong> Aggregates the hidden representations to generate the final price prediction using Chebyshev-based polynomial transformation.</li>
+</ul>
+
+<h2 id="hyperparameter-tuning">Hyperparameter tuning</h2>
+
+<p>We performed a grid search over polynomial degrees (ranging from 3 to 5) and hidden layer sizes (8, 16, 32, 64) to maximize the F1-score on validation set. A configuration with 16 hidden units and a polynomial degree of 3 for both layers achieved an F1-score of above 75%, slightly surpassing the 3-layer MLP baseline. Additionally, this setup maintains a low multiplication depth of 2 levels per layer, ensuring efficient HE inference.</p>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The ChebyKAN inference procedure was implemented following the same method described in our <a href="https://fherma.io/content/682c2c423e4a37c9c28266c6">House Price Prediction solution</a>.</p>
+
+<h2 id="references">References</h2>
+
+<p>[1] Yu, Runpeng, Weihao Yu, and Xinchao Wang. <em>Kan or mlp: A fairer comparison</em>. arXiv preprint arXiv:2407.16674 (2024).</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for building an FHE model for tweet sentiment classification.]]></summary></entry><entry><title type="html">k-Nearest Neighbors Search</title><link href="http://localhost:4000/posts/fherma-challenge/knn/" rel="alternate" type="text/html" title="k-Nearest Neighbors Search" /><published>2025-05-20T00:00:00+10:00</published><updated>2025-05-20T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-knn</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/knn/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/6789154e1597b29897d448a4">k-Nearest Neighbors Search challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>The challenge tasks players with finding the $k$ nearest neighbors of an encrypted 2D vector within a database, using cosine similarity to measure the distance between vectors. Cosine similarity is defined as $d(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{</td>
+      <td>\mathbf{u}</td>
+      <td> </td>
+      <td>\mathbf{v}</td>
+      <td>}$, where $\mathbf{u}$ and $\mathbf{v}$ are vectors, $\cdot$ denotes the dot product, and $</td>
+      <td>\cdot</td>
+      <td>$ represents the Euclidean norm. A common approach to find $k$-nearest neighbors (kNN) in cleartext is to compute the cosine similarity between the query vector and all database vectors, sort the similarities in descending order, and select the top $k$ vectors. This can be optimized using data structures like KD-trees or approximate methods like locality-sensitive hashing for efficiency.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>However, a naive implementation of such an algorithm in the HE domain may incur significant overhead due to the high computational cost of encrypted arithmetic operations, the need for deep circuits to evaluate non-linear functions like division and square roots in cosine similarity, limited support for comparison and sorting operations, and the increased ciphertext size and noise growth in HE schemes.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>We adopted an approximated approach that simplifies the kNN problem into a lookup table. This is based on the observation that two vectors are likely to share similar neighbors if the angle between them is small. In particular, we partition the 2D plane into $M$ uniform angular sectors, defined by a set of $M$ vectors ${\mathbf{v}<em>0, \mathbf{v}_1, \dots, \mathbf{v}</em>{M-1}}$, where each $\mathbf{v}<em>i$ is equally spaced at angles $\frac{2\pi i}{M}$ from the origin. Here, the $i$-th sector is the sector between $\mathbf{v}</em>{i-1}$ and $\mathbf{v}_i$. The neighbor set of a sector is defined as the $k$ nearest neighbors of its bisector ray, precomputed during initialization. For a query vector $\mathbf{x}$, we identify the sector it falls into by computing its angle relative to the origin and return the precomputed neighbors of that sector as its approximate neighbors. Figure 1 illustrates this partitioning approach.</p>
+
+<p><img src="https://hackmd.io/_uploads/rJP5ci_-gx.png" alt="sector_partition" />
+<em><strong>Figure 1</strong>: Illustration of the angular sector partitioning approach with $M=50$ sectors.</em></p>
+
+<p>Given a 2D query vector $\mathbf{x}$, we can determine if it falls into the $i$-th sector by evaluating the dot products $\mathbf{x} \cdot \mathbf{v}<em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ and checking if these values have opposite signs. In the HE domain, this check can be translated to computing the product of the dot products, i.e., $(\mathbf{x} \cdot \mathbf{v}</em>{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}<em>i) = (x[0]v</em>{i-1}[0] + x[1]v_{i-1}[1]) * (x[0]v_i[0] + x[1]v_i[1])$, using basic HE operations. We then apply an approximation of the sign function to the result to check if the value is negative, confirming sector membership.</p>
+
+<p>It’s straightforward that the accuracy of the prediction increases as the number of sectors increases, though this comes at the cost of higher computational requirements. At a very large number of clusters, the accuracy approaches perfection, but the computational cost may become excessively high. However, given the nonuniform distribution of data points, we can employ a nonuniform clustering approach to reduce the number of clusters. This involves denser partitioning in directions with more points and coarser partitioning in less populated areas. Specifically, we start with a high-resolution partition of $M=5000000$ clusters, which achieves perfect accuracy, and then gradually reduce the number of clusters by merging consecutive clusters that share the same set of $k$ nearest neighbors. This process is repeated until no further merging is possible, resulting in $M=1001$ clusters after the procedure, significantly reducing the computational overhead. Figure 2 shows an illustration of the resulting nonuniform partition. The high-level pseudocode for reducing the number of clusters is as follows</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; For each sector:
+&gt;     Compute k nearest neighbors of the sector's center
+&gt;     Store the neighbor set in a map
+&gt; 
+&gt; Sort sectors in ascending order of start angle
+&gt; 
+&gt; Initialize an empty list for merged sectors
+&gt; While there are sectors to process:
+&gt;     Group consecutive sectors with the same k-NN set
+&gt;     Merge each group into a single sector
+&gt;     Add the merged sector to the list
+&gt; Update the sector list with the merged sectors
+</code></pre></div></div>
+
+<p><img src="https://hackmd.io/_uploads/BkDDd3dWeg.png" alt="nonuniform" />
+<em><strong>Figure 2</strong>: Illustration of the resulting nonuniform partition after merging clusters.</em></p>
+
+<h2 id="he-implementation">HE Implementation</h2>
+
+<p>We now describe the HE implementation for determining the sector of a query vector $\mathbf{x}$ and mapping it to the corresponding precomputed $k$ nearest neighbors, using the sector-based approximation approach. The process is broken down into multiple steps as follows.</p>
+
+<ul>
+  <li><strong>Step 0:</strong> The process starts with a ciphertext $\text{ct}_\mathbf{x}$ containing the 2D query vector $\mathbf{x} = [x[0], x[1]]$. The components $x[0]$ and $x[1]$ are placed in the first two slots of the ciphertext, with all subsequent slots set to zero.</li>
+  <li><strong>Step 1: Replicate the query vector across slots</strong>
+  To enable simultaneous computation across multiple sectors, the query vector $\mathbf{x}$ is replicated across the ciphertext slots. After replication, each pair of slots in $\text{ct}_\mathbf{x}$ (e.g., slots 0–1, 2–3, etc.) contains the values $[x[0], x[1]]$.</li>
+  <li><strong>Step 2: Make a plaintext for sector boundary vectors</strong>
+  A plaintext $\text{pt}_\mathbf{v}$ is created to store the sector boundary vectors ${\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_M}$. For each sector $i$, the vector $\mathbf{v}_i$ is placed in specific slot pairs. For example, slots from $32i$ to $32i+31$ corresponding to sector $i$ will contain the replications of $[\mathbf{v}_i[0], \mathbf{v}_i[1]]$. This allows for the computation of dot products with consecutive sector boundaries.</li>
+  <li><strong>Step 3: Compute dot products with sector boundaries</strong>
+  For each sector $i$, the dot products $\mathbf{x} \cdot \mathbf{v}<em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ are computed in the HE domain. This involves element-wise subtraction between the replicated query vector and the sector boundary vectors, followed by rotation and multiplication. Specifically, the dot product $\mathbf{x} \cdot \mathbf{v}_i$ is calculated as $(\text{ct}</em>\mathbf{x}-\text{pt}<em>\mathbf{v})*\text{Rotate}(\text{ct}</em>\mathbf{x}-\text{pt}_\mathbf{v}, 1)$.</li>
+  <li><strong>Step 4: Determine the sign of dot products</strong>
+  To check if $\mathbf{x}$ lies between $\mathbf{v}<em>{i-1}$ and $\mathbf{v}_i$, we need to determine if the dot products $\mathbf{x} \cdot \mathbf{v}</em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ have opposite signs. An approximation of the sign function is evalutated over the dot product results using Paterson-Stockmeyer algorithm, converting the numerical dot products into boolean indicators (1 if the dot product is positive and 0 if negative).</li>
+  <li><strong>Step 5: Identify sector</strong>
+  The sector membership test relies on the fact that $\mathbf{x}$ lies in sector $i$ if $(\mathbf{x} \cdot \mathbf{v}_{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}_i) &lt; 0$, indicating opposite signs. In the HE domain, this is implemented by multiplying the sign indicators of the two dot products. If the product is 1 (i.e., one sign is positive and the other negative), $\mathbf{x}$ is confirmed to be in sector $i$.</li>
+  <li><strong>Step 6: Map to precomputed neighbors</strong>
+  Once the sector of $\mathbf{x}$ is identified, the precomputed $k$ nearest neighbors associated with that sector are retrieved. These neighbors were calculated during the preprocessing phase for each sector’s bisector ray. The neighbor sets are encoded into a single plaintext and is assigned to the slots corresponding to the identified sector by multiplication, ensuring that the output ciphertext only contains the approximate $k$ nearest neighbors of $\mathbf{x}$.</li>
+  <li><strong>Step 7: Accumulate neighbors to the first 10 slots using rotation</strong></li>
+</ul>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for implementing kNN search over encrypted queries without revealing the data.]]></summary></entry><entry><title type="html">House Price Prediction</title><link href="http://localhost:4000/posts/fherma-challenge/house-price/" rel="alternate" type="text/html" title="House Price Prediction" /><published>2025-05-20T00:00:00+10:00</published><updated>2025-05-20T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-houseprice</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/house-price/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/676035a7890eef39561cf7c9">House Price Prediction challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+<p>The challenge requires developing a regression model to predict housing prices while ensuring privacy through HE. The task involves training a model on an unencrypted dataset and performing inference on encrypted data. This addresses the critical need for privacy-preserving machine learning in real estate, where datasets often contain sensitive information.</p>
+
+<h2 id="model-selection">Model Selection</h2>
+
+<p>We selected the Kolmogorov-Arnold Network (KAN) for its efficiency in regression tasks and its compact architecture, which requires fewer parameters than conventional neural networks such as multilayer perceptrons. Specifically, we adopted a Chebyshev polynomial-based variant known as ChebyKAN [1], which replaces the original spline-based activations in KAN with Chebyshev polynomials. This substitution not only preserves the expressive power of the model but also ensures compatibility with HE schemes. Chebyshev polynomials can be evaluated efficiently using recursive relations and are well-suited for encrypted computation, as they avoid the complexities introduced by spline interpolation. As a result, ChebyKAN significantly reduces both computational overhead and ciphertext level consumption, making it ideal for privacy-preserving inference under HE.</p>
+
+<h2 id="model-architecture">Model Architecture</h2>
+
+<p>The ChebyKAN model used is a two-layer neural network implemented in PyTorch, with each layer incorporating Chebyshev polynomial operations for non-linear regression.</p>
+<ul>
+  <li><strong>Input Normalization:</strong> A min-max scaler maps input features to the range [-0.8, 0.8] (instead of the standard [-1, 1]) to provide a safety margin, preventing overflow when processing unseen test samples during encrypted inference.</li>
+  <li><strong>First Layer:</strong> Transforms the normalized inputs into a hidden representation by computing weighted sums of Chebyshev polynomials.</li>
+  <li><strong>Activation:</strong> Applies a scaled hyperbolic tangent activation ($0.9\tanh(\cdot)$) to constrain outputs within [-0.9, 0.9], ensuring numerical stability and preventing overflow .</li>
+  <li><strong>Second Layer:</strong> Aggregates the hidden representations to generate the final price prediction using Chebyshev-based polynomial transformation.</li>
+</ul>
+
+<h2 id="model-training">Model Training</h2>
+
+<p>Training procedures were adapted from an open-source implementation [1]. We conducted a grid search over the polynomial degrees and hidden layer sizes to maximize performance, measured by the $R^2$ score on a validation set. The best configuration identified through this process used a hidden dimension of 32 and a Chebyshev polynomial degree of 7.</p>
+
+<h2 id="model-ensembling">Model Ensembling</h2>
+
+<p>To improve prediction robustness and accuracy, we trained multiple ChebyKAN models with different random initializations and combined their outputs using an ensemble approach. Predictions from individual models were aggregated through a weighted combination, with the weights optimized via the L-BFGS-B algorithm to maximize the ensemble’s $R^2$ score. This ensemble strategy mitigates model variance and achieves superior predictive performance compared to any single model.</p>
+
+<h2 id="he-inference">HE Inference</h2>
+
+<p>For encrypted inference, we customized the Baby-Step Giant-Step (BSGS) algorithm to efficiently evaluate Chebyshev polynomials on encrypted data. By using plaintext coefficient vectors and SIMD evalutation, our modified BSGS approach enables simultaneous evaluations of multiple polynomials across different inputs. The method requires only three multiplicative levels to evaluate Chebyshev polynomials of degree 7, minimizing the depth required for inference.</p>
+
+<h2 id="references">References</h2>
+
+<p>[1] https://github.com/SynodicMonth/ChebyKAN</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for building an FHE regression model for estimating housing prices.]]></summary></entry><entry><title type="html">Encrypted Matrix Inversion</title><link href="http://localhost:4000/posts/fherma-challenge/matrix-inversion/" rel="alternate" type="text/html" title="Encrypted Matrix Inversion" /><published>2025-04-16T00:00:00+10:00</published><updated>2025-04-16T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-invmatrix</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/matrix-inversion/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66fbe17f261b45193c4c40f9">Invertible Matrix challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Matrix inversion is a cornerstone of linear algebra, but performing it on encrypted data using HE presents unique challenges. The FHERMA Invertible Matrix Challenge tasked us with inverting a nonsingular 64x64 matrix efficiently—within approximately 30 minutes per matrix. The complexity arises from the deep computation circuits required for matrix operations over ciphertexts, which significantly increases both time and resource demands.</p>
+
+<h2 id="the-core-idea-iterative-matrix-inversion">The Core Idea: Iterative Matrix Inversion</h2>
+
+<p>Based on a review of recent literature, we adopted an iterative algorithm proposed in [1], which combines Goldschmidt’s and Newton’s methods. This hybrid approach is ideal for HE, as it maintains a low multiplicative depth—a critical factor given the substantial overhead introduced by each ciphertext multiplication.</p>
+
+<p>Below is the algorithm in Python:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sh">"""</span><span class="s"> Compute the inverse of a matrix A using the Goldschmidt algorithm. </span><span class="sh">"""</span>
+<span class="n">A_inv</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="nf">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="c1"># Ground truth for comparison
+</span><span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">eye</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">norm_A</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># Empirically chosen constant
+</span><span class="n">X</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="n">norm_A</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">R</span> <span class="o">=</span> <span class="n">I</span> <span class="o">-</span> <span class="n">A</span> <span class="o">@</span> <span class="n">A</span><span class="p">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="n">norm_A</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">max_iterations</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="p">(</span><span class="n">I</span> <span class="o">+</span> <span class="n">R</span><span class="p">)</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">R</span> <span class="o">@</span> <span class="n">R</span>
+    
+    <span class="c1"># Check for convergence
+</span>    <span class="n">residual_norm</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">A_inv</span><span class="p">).</span><span class="nf">max</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">residual_norm</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Converged in </span><span class="si">{</span><span class="n">iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s"> iterations.</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span>
+</code></pre></div></div>
+
+<p>In this context, the value <code class="language-plaintext highlighter-rouge">norm_A</code> represents the trace norm of the matrix product <code class="language-plaintext highlighter-rouge">A @ A.T</code>. However, to reduce computational overhead, we empirically substitute this value with a constant (24). Experimental results indicate that the algorithm converges within 26 iterations with high probability. Analyzing the inner loop of the algorithm reveals that each iteration incurs a multiplicative depth of only one, consistent with the claim in [1]. Nevertheless, due to the nature of matrix multiplication over encrypted data, additional multiplicative levels are required to perform slot masking and realignment within the ciphertexts of matrices X and R after each iteration.</p>
+
+<h2 id="key-building-block-ciphertext-matrix-multiplication-with-tile-tensors">Key Building Block: Ciphertext Matrix Multiplication with Tile Tensors</h2>
+
+<p>There is extensive research on ciphertext matrix-matrix multiplication. In this work, we adopt the tile tensor abstraction introduced in [2] and IBM HELayer SDK [3], owing to its clarity and implementation ease. For a detailed introduction to tile tensors and the set of operations supported on this data structure, please refer to [2].</p>
+
+<h3 id="understanding-tile-tensors">Understanding Tile Tensors</h3>
+
+<p>Tile tensors split matrices into smaller “tiles” that fit into ciphertext slots. For a matrix $X$ of size $a \times b$, we encode it as $X[\frac{a}{t_1}, \frac{b}{t_2}, \frac{1}{t_3}]$, where $t_1, t_2, t_3$ are tiling dimensions. This structure supports operations like duplication, summation, and multiplication along specific axes.</p>
+
+<h3 id="performing-matrix-multiplication">Performing Matrix Multiplication</h3>
+
+<p>Given two matrices $X[a,b]$ and $Y[b,c]$, to compute $Z=XY$, we encode $X$ and $Y$ so the contracted dimension (the dimension over which the summation runs over) aligns in their tensor shapes. One possible encoding is $X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}]$ and $Y[\frac{1}{t_1},\frac{b}{t2},\frac{c}{t3}]$. The multiplication proceeds as:</p>
+
+<p>$X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}], 3)$,
+$Y[\frac{</em>}{t_1},\frac{b}{t2},\frac{c}{t3}] = duplicate(Y[\frac{1}{t_1},\frac{b}{t2},\frac{c}{t3}], 1)$,
+$Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}] = sum(X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}]</em>Y[\frac{*}{t_1},\frac{b}{t2},\frac{c}{t3}], 2)$,</p>
+
+<p>where $duplicate(T,i)$ duplicates the tensor along the $i$-th dimension, and $sum(T,i)$ sums over the $i$-th dimension. The resulting tensor $Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}]$ contains unknown values in the second dimension, denoted by $(1?)$. To enable further computations, we clear unused slots using the $clear$ operator:</p>
+
+<p>$clear(Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}]) = Z[\frac{a}{t_1},\frac{1}{t2},\frac{c}{t3}]$.</p>
+
+<p>The $clear$ operation involves multiplication with a plaintext mask, incurring one multiplicative level.</p>
+
+<p>Matrix transposition, e.g., from $X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}]$ to $X^\top[\frac{1}{t_1},\frac{b}{t2},\frac{a}{t3}]$, is performed as follows:</p>
+
+<p>$X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}], 3)$,
+$I[\frac{a}{t_1},\frac{</em>}{t2},\frac{a}{t3}] = duplicate(I[\frac{a}{t_1},\frac{1}{t2},\frac{a}{t3}], 2)$,
+$X^\top[\frac{1?}{t_1},\frac{b}{t2},\frac{a}{t3}] = sum(X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}]</em>I[\frac{a}{t_1},\frac{*}{t2},\frac{a}{t3}], 1)$,
+$X^\top[\frac{1}{t_1},\frac{b}{t2},\frac{a}{t3}] = clear(X^\top[\frac{1?}{t_1},\frac{b}{t2},\frac{a}{t3}])$,</p>
+
+<p>where $I$ is the identity matrix of size $a \times a$.</p>
+
+<h2 id="the-encrypted-algorithm">The Encrypted Algorithm</h2>
+
+<p>We now construct the complete encrypted matrix inversion algorithm. The input ciphertext $A$ is encoded as a tile tensor of shape $[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$, with $a=b=64$, $t_1=t_2=64, t_3=32$, fitting $131,072$ slots. Following the cleartext algorithm, we first compute $R = I - AA^\top / norm_A$. We transpose $A[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$ to $A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{1}{t3}]$, then calculate:</p>
+
+<p>$A[\frac{<em>}{t_1},\frac{a}{t2},\frac{b}{t3}] = duplicate(A[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}], 1)$,
+$A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{</em>}{t3}] = duplicate(A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{1}{t3}], 3)$,
+$AA^\top[\frac{b}{t_1},\frac{1?}{t2},\frac{b}{t3}] = sum(A[\frac{<em>}{t_1},\frac{a}{t2},\frac{b}{t3}]</em>A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{*}{t3}], 2)$,
+$R[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}] = I[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}] - clear(AA^\top[\frac{b}{t_1},\frac{1?}{t2},\frac{b}{t3}]) / norm_A$</p>
+
+<p>Since $AA^\top$ and $R$ are symmetric, we can select either dimension (e.g., 1 or 3) as the contracted dimension for multiplications.</p>
+
+<p>With $X[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$ and $R[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$, we enter the iteration loop. At each iteration, $X$ is updated as $X = X(I+R)$, which is straightforward due to compatible shapes. However, updating $R=R^2$ requires transposing one of $R$’s dimensions (e.g., from $[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$ to $[\frac{1}{t_1},\frac{b}{t2},\frac{b}{t3}]$) to enable multiplication. As mentioned earlier, transposition involves multiplying with an appropriately encoded identity matrix, resulting in two matrix products per iteration and doubling the multiplicative depth.</p>
+
+<p>To address this, we use a simple optimization. Instead of maintaining one encoding of $R$, we store three: $R_1[\frac{1}{t_1},\frac{b}{t2},\frac{b}{t3}]$, $R_2[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$, and $R_3[\frac{b}{t_1},\frac{b}{t2},\frac{1}{t3}]$, which are derived from $R$ before the loop. Within the loop, these encodings are used pairwise to compute updates, e.g.:
+$R_1[\frac{1?}{t_1},\frac{b}{t2},\frac{b}{t3}] = sum(R_2[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]*R_3[\frac{b}{t_1},\frac{b}{t2},\frac{1}{t3}]), 1)$, and similarly for $R_2$ and $R_3$. This keeps the multiplicative depth per iteration at 2 (equivalent to one matrix multiplication), at the cost of four matrix multiplications per iteration instead of two. This trade-off is justified, as the computational cost is lower than the savings from reduced depth.
+The total depth is: 26 (iterations) * 2 + 1 (scaling) + 4 (computing $R_i$) + 4 (reshaping result) = 61.</p>
+
+<h2 id="references">References</h2>
+
+<p>[1] Ahn, T.M., Lee, K.H., Yoo, J.S., Yoon, J.W. (2024). <em>Cheap and Fast Iterative Matrix Inverse in Encrypted Domain</em>. In: Tsudik, G., Conti, M., Liang, K., Smaragdakis, G. (eds) <em>Computer Security – ESORICS 2023</em>. Lecture Notes in Computer Science, vol 14344. Springer, Cham.</p>
+
+<p>[2] Aharoni, E., Adir, A., Baruch, M., Drucker, N., Ezov, G., Farkash, A., Greenberg, L., Masalha, R., Moshkowich, G., Murik, D., Shaul, H., Soceanu, O. (2023). <em>HeLayers: A Tile Tensors Framework for Large Neural Networks on Encrypted Data</em>. Privacy Enhancing Technology Symposium (PETs).</p>
+
+<p>[3] https://ibm.github.io/helayers/</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for performing efficient inversion of encrypted matrices.]]></summary></entry><entry><title type="html">Ethereum Fraud Detection via SVM</title><link href="http://localhost:4000/posts/fherma-challenge/ethsvm/" rel="alternate" type="text/html" title="Ethereum Fraud Detection via SVM" /><published>2025-04-16T00:00:00+10:00</published><updated>2025-04-16T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-ethsvm</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/ethsvm/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66e8180996829cc963805ffb">Private Fraud Detection challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The challenge requires training a SVM model on a public clear-text dataset for Ethereum fraud detection, then evaluating it on a private encrypted test set using HE. The goal is to classify transactions as fraudulent or legitimate while preserving data privacy during inference. SVMs are well-suited for HE-based inference due to their reliance on a decision function that can often be simplified to a linear operation (e.g., a dot product for linear kernels).</p>
+
+<h2 id="data-preprocessing">Data Preprocessing</h2>
+
+<p>The public training dataset contains Ethereum transaction features for fraud detection. We analyzed feature skewness using <code class="language-plaintext highlighter-rouge">scipy.stats.skew</code>, revealing high skewness (&gt;1) across all columns, indicating non-normal distributions.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                               <span class="n">Column</span>   <span class="n">Skewness</span>
+<span class="mi">0</span>                                  <span class="n">ERC20</span> <span class="n">avg</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">88.696538</span>
+<span class="mi">1</span>                                  <span class="n">ERC20</span> <span class="nb">max</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">88.682094</span>
+<span class="mi">2</span>                                  <span class="n">ERC20</span> <span class="nb">min</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">88.679603</span>
+<span class="mi">3</span>                                   <span class="n">ERC20</span> <span class="nb">max</span> <span class="n">val</span> <span class="n">rec</span>  <span class="mf">88.631605</span>
+<span class="mi">4</span>                          <span class="n">ERC20</span> <span class="n">total</span> <span class="n">Ether</span> <span class="n">received</span>  <span class="mf">88.608206</span>
+<span class="mi">5</span>                              <span class="n">ERC20</span> <span class="n">total</span> <span class="n">ether</span> <span class="n">sent</span>  <span class="mf">88.576675</span>
+<span class="mi">6</span>                                    <span class="n">avg</span> <span class="n">val</span> <span class="n">received</span>  <span class="mf">86.632342</span>
+<span class="mi">7</span>                                        <span class="nb">min</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">76.084382</span>
+<span class="mi">8</span>                          <span class="nb">min</span> <span class="n">value</span> <span class="n">sent</span> <span class="n">to</span> <span class="n">contract</span>  <span class="mf">71.400808</span>
+<span class="mi">9</span>                            <span class="nb">max</span> <span class="n">val</span> <span class="n">sent</span> <span class="n">to</span> <span class="n">contract</span>  <span class="mf">70.506146</span>
+<span class="mi">10</span>                         <span class="n">total</span> <span class="n">ether</span> <span class="n">sent</span> <span class="n">contracts</span>  <span class="mf">70.506005</span>
+<span class="bp">...</span>
+<span class="mi">36</span>  <span class="n">total</span> <span class="nf">transactions </span><span class="p">(</span><span class="n">including</span> <span class="n">tnx</span> <span class="n">to</span> <span class="n">create</span> <span class="n">co</span><span class="p">...</span>   <span class="mf">6.797555</span>
+<span class="mi">37</span>            <span class="n">Time</span> <span class="n">Diff</span> <span class="n">between</span> <span class="n">first</span> <span class="ow">and</span> <span class="nf">last </span><span class="p">(</span><span class="n">Mins</span><span class="p">)</span>   <span class="mf">1.802201</span>
+</code></pre></div></div>
+
+<p>High skewness suggests that features are heavily tailed, which can degrade SVM performance by causing numerical instability or poor separation of classes. Transforming features to a logarithmic scale reduces skewness, making the data more symmetric and closer to a normal distribution. This ultimately boosts classification accuracy.</p>
+
+<p>Since the dataset includes negative values, we first apply <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> to scale features to [0, 1], then use a polynomial approximation of the logarithm (<code class="language-plaintext highlighter-rouge">poly_log</code>) to enable HE-compatible evaluation.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scaler</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="nf">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="nf">poly_log</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="nf">poly_log</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">poly_log</code> function approximates the logarithm over [0.0001, 1] using Chebyshev interpolation with degree 121 for high precision:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">linspace</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">poly_log</span> <span class="o">=</span> <span class="n">C</span><span class="p">.</span><span class="n">Chebyshev</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">121</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>After log transformation, we apply a second <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> to rescale the data back to [0, 1].</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scaler2</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler2</span><span class="p">.</span><span class="nf">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler2</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="https://hackmd.io/_uploads/Bkp-Qn5Rkx.png" alt="log" />
+<em><strong>Figure 1</strong>: Illustration of the log approximation.</em></p>
+
+<h2 id="model-training">Model Training</h2>
+
+<p>We implement the SVM using <code class="language-plaintext highlighter-rouge">sklearn.svm.SVC</code> and tune hyperparameters <code class="language-plaintext highlighter-rouge">C</code> and <code class="language-plaintext highlighter-rouge">gamma</code> with GridSearchCV.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tuned_parameters</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="sh">"</span><span class="s">gamma</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.001</span><span class="p">],</span> <span class="sh">"</span><span class="s">C</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]},</span>
+<span class="p">]</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="nc">GridSearchCV</span><span class="p">(</span><span class="nc">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="sh">'</span><span class="s">linear</span><span class="sh">'</span><span class="p">),</span> <span class="n">tuned_parameters</span><span class="p">,</span> <span class="n">refit</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="sh">'</span><span class="s">f1</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">grid</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We select the linear kernel for its simplicity and HE compatibility. Non-linear kernels (e.g., RBF, polynomial) could improve accuracy but introduce significant complexity in HE. They require evaluating the kernel function over potentially hundreds of support vectors, involving costly operations like rotations. In contrast, the linear kernel’s decision function is a single dot product between the input vector and the model’s weights, enabling faster and more efficient HE inference.</p>
+
+<p>The grid search yields an F1 score of 0.9025 on the training set. Validation on a separate clear-text test set achieves an F1 score of 0.9161, confirming robust generalization.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Train F1 Score :</span><span class="sh">"</span><span class="p">,</span><span class="n">grid</span><span class="p">.</span><span class="n">best_score_</span><span class="p">)</span>
+<span class="n">best_y_pr</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">Test F1 Score: </span><span class="sh">'</span><span class="p">,</span> <span class="nf">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">best_y_pr</span><span class="p">))</span>
+    
+<span class="n">Output</span><span class="p">:</span>
+<span class="n">Train</span> <span class="n">F1</span> <span class="n">Score</span> <span class="p">:</span> <span class="mf">0.9025388783902716</span>
+<span class="n">Test</span> <span class="n">F1</span> <span class="n">Score</span><span class="p">:</span>  <span class="mf">0.9161290322580645</span>
+</code></pre></div></div>
+
+<h2 id="he-implementation">HE Implementation</h2>
+
+<p>For HE inference, we use the CKKS scheme to evaluate the trained SVM on encrypted inputs. The process mirrors preprocessing and model evaluation in the clear-text domain but operates on ciphertexts.</p>
+
+<p>First, we apply the <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> and <code class="language-plaintext highlighter-rouge">poly_log</code> transformation to the input ciphertext:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Extract attributes from the first MinMaxScaler, where scale_1 = scaler.scale_ and min_1 = scaler.min_</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">scale_1</span><span class="p">));</span>
+<span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAddInPlace</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">min_1</span><span class="p">));</span>
+    
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">poly_cheb</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    
+<span class="c1">// Similarly, we have scale_2 = scaler2.scale_ and min_2 = scaler2.min_</span>
+<span class="c1">// However, this second scaling can be skipped as discussed below</span>
+<span class="c1">// m_OutputC = m_cc-&gt;EvalMult(m_OutputC, m_cc-&gt;MakeCKKSPackedPlaintext(scale_2));</span>
+<span class="c1">// m_cc-&gt;EvalAddInPlace(m_OutputC, m_cc-&gt;MakeCKKSPackedPlaintext(min_2));</span>
+</code></pre></div></div>
+
+<p>To optimize, we skip the second scaling (<code class="language-plaintext highlighter-rouge">scaler2</code>) by fusing it with the SVM weight multiplication, reducing the multiplication depth. We adjust the model’s weights and bias accordingly:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">w</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="n">best_estimator_</span><span class="p">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="n">best_estimator_</span><span class="p">.</span><span class="n">intercept_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">scaler2</span><span class="p">.</span><span class="n">min_</span> <span class="o">*</span> <span class="n">w</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">scaler2</span><span class="p">.</span><span class="n">scale_</span>
+</code></pre></div></div>
+
+<p>The HE evaluation computes the decision function as a dot product:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">w</span><span class="p">));</span>
+<span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">64</span><span class="p">;</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalRotate</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">k</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>This accumulates the dot product result in the first slot of the ciphertext. To obtain the predicted label, we compute the sign of this value. We scale the first slot to [-1, 1], mask other slots containing dummy values to avoid overflow, and apply an approximated sign function using three composite polynomials (each degree 25):</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">mask</span><span class="p">(</span><span class="mi">32768</span><span class="p">);</span>
+<span class="n">mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">;</span> <span class="c1">// Scale to [-1, 1]</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">mask</span><span class="p">));</span>
+    
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">sign_poly_1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">sign_poly_2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">sign_poly_3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</code></pre></div></div>
+<p>This produces the final encrypted classification label (1 for fraud, -1 for legitimate).</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>The solution achieves high accuracy (F1 &gt; 0.91) on the Ethereum fraud detection task while enabling secure inference on encrypted data with a processing delay of approximately 11 seconds per inference. By leveraging a linear SVM, Chebyshev polynomial approximations, and optimized HE operations, we balance performance and computational efficiency.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [Private Fraud Detection via Homomorphic Support Vector Machines](https://fherma.io/challenges/66e8180996829cc963805ffb).]]></summary></entry><entry><title type="html">IBM Encrypted Array Sorting Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/sorting/" rel="alternate" type="text/html" title="IBM Encrypted Array Sorting Challenge" /><published>2024-11-24T00:00:00+11:00</published><updated>2024-11-24T00:00:00+11:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-sorting</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/sorting/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66582c7551eafe1a4e6c451b">IBM Array Sorting challenge</a>.</em> <br />
 <em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
 
 <p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
@@ -39,7 +459,91 @@
 
 <p><a name="1"></a>[1] <strong>Lee, Eunsang</strong>, et al. “Minimax approximation of sign function by composite polynomial for homomorphic comparison.” <em>IEEE Transactions on Dependable and Secure Computing</em> 19.6 (2021): 3711-3727.</p>
 
-<p><a name="2"></a>[2] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="IBM Research" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [IBM Array Sorting challenge](https://fherma.io/challenges/66582c7551eafe1a4e6c451b).]]></summary></entry><entry><title type="html">IBM Parity Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/parity/" rel="alternate" type="text/html" title="IBM Parity Challenge" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-parity</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/parity/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/65ef8c4c5428d672bcc3977b">IBM Parity challenge</a>.</em> <br />
+<p><a name="2"></a>[2] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="IBM Research" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [IBM Array Sorting challenge](https://fherma.io/challenges/66582c7551eafe1a4e6c451b).]]></summary></entry><entry><title type="html">Bitwise Shift Left Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/shl/" rel="alternate" type="text/html" title="Bitwise Shift Left Challenge" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-shl</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/shl/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/661643316a54e9817d3706f6">SHL challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The objective of the challenge is to evaluate a bitwise shift left operation on an encrypted integer within the range $[0,2^{16}-1]$. This operation can be defined as $SHL(c_x,c_n) = c_{(x * 2^n) \mod 2^{16}}$, where $c_x$ and $c_n$ are ciphertexts encrypting the input integer $x$ and the number of shifted bits $n$, respectively, in their first slots. The value of $n$ is constrained between 0 and 16. The output ciphertext should encrypt the logical shifted value $SHL(x,n) = (x * 2^n) \mod 2^{16}$ in its first slot, which is also a value in the range $[0,2^{16}-1]$.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>The proposed solution employs a two-way lookup table approach, using $x$ and $n$ as keys and $SHL(x,n)$ as the lookup value. In this way, the computation in the encrypted domain is expressed as:
+\[ SHL(c_x, c_n) = \sum_{i=0}^{2^{16}-1}\left( EQ(c_x, i) \times \sum_{k=0}^{15} EQ(c_n, k) \times SHL(i, k) \right), \]
+where
+\[
+    EQ(a,b) = \begin{cases} 
+        1 &amp; \text{if } a = b \\ 
+        0 &amp; \text{if } a \neq b 
+    \end{cases}
+\]
+is the equality function. Notably, the term for $k=16$ is omitted since the computation naturally returns $0$ when $n=16$, which is the correct result.</p>
+
+<p>To optimize the number of comparisons, we leverage the SIMD property of the underlying BFV/BGV system by transforming the above equation to:
+\[
+	SHL(\mathtt{c}_x,\mathtt{c}_n) = SumSlots\left( EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right) * \sum_{k=0}^{16} EQ\left(Duplicate(\mathtt{c}_n),k\right) * \mathtt{p}^\text{out}_k \right).
+\]</p>
+
+<p>Here the $Duplicate(.)$ function function replicates the value in the first slot of a ciphertext across its first $2^{16}$ slots, while the $SumSlots(.)$ function sums the first $2^{16}$ slots of a ciphertext, placing the result in the first slot. These functions can be implemented using sequencial rotation and addition operations. Additionally, $\mathtt{p}^\text{in}$ is the plaintext that encodes the vector $[0,1,\dots,2^{16}-1]$ containing all possible input values, and $\mathtt{p}^\text{out}_k$ encodes the vector $[SHL(0,k),SHL(1,k),\dots,SHL(2^{16}-1,k)]$ for all possible output values given the shifted amount $k$.</p>
+
+<p>By precompute the plaintexts $\mathtt{p}^\text{out}_k$ for all possible $k$ values, the remaining task is to implement the equality comparison function between a ciphertext and a plaintext value. Due to different ranges of $x$ and $n$, two distinct equality comparison methods are employed for optimal performance. Specifically, Fermat’s Little Theorem (FLT) is used for comparing values in $Duplicate(\mathtt{c}_x)$ and $\mathtt{p}^\text{in}$ (referred to as the outer comparison), while the Lagrange polynomial method is used for comparing $Duplicate(\mathtt{c}_n)$ and $k$ (referred to as the inner comparison).</p>
+
+<h3 id="outer-equality-comparison">Outer Equality Comparison</h3>
+
+<p>The FLT method is utilized to evaluate $EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right)$. This function returns a ciphertext where the $i$-th slot is one if $i$ equals $x$ and zero otherwise. This approach is similar to the FHERMA’s Lookup Table solution <a href="#1">[1]</a>. However, given the input range $[0,2^{16}-1]$, the plaintext modulus $Q$ must be set higher, specifically $Q=786433=3\times2^{18}+1$, to encode the values correctly. To begin with, we subtract $\mathtt{p}^\text{in}$ from $Duplicate(\mathtt{c}_x)$. The resulting ciphertext $c_\text{diff} = (Duplicate(\mathtt{c}_x)-\mathtt{p}^\text{in})$ contains exactly one zero at the $x$-th slot and non-zero values in other slots. We then compute the exponentiation $c_\text{diff}^{3\times2^{18}} = c_\text{diff}^{2^{19}}\times c_\text{diff}^{2^{18}}$, which consumes 20 multiplication levels in total. The final comparison results is obtained by evaluating $1 - c_\text{diff}^{3\times2^{18}}$.</p>
+
+<h3 id="inner-equality-comparison">Inner Equality Comparison</h3>
+
+<p>For a fixed value of $k$ ($0\leq k \leq 15$), the function $EQ\left(Duplicate(\mathtt{c}_n),k\right)$ can be represented by a Lagrange polynomial with integer coefficients $p(z)$, calculated over the interpolation nodes $0,1,\dots,16$ and the corresponding values $p(z) = 1$ at $z=k$ and $0$ elsewhere. The coefficients of $p(n)$ are computed by using modular multiplication and division in the plaintext modulus $Q$. As the degree of $p$ is 17, its evaluation consumes 5 multiplication levels using the Paterson-Stockmeyer algorithm. We modified the <code class="language-plaintext highlighter-rouge">EvalPolyPS</code> from the OpenFHE library to accommodate integer coefficient polynomials.</p>
+
+<p>However, the above approach requires 16 executions of the Paterson-Stockmeyer algorithm, which can be time-consuming. This can be reduced to a single execution in a SIMD fashion. Similar to the outer comparison, we calculate the subtraction $(Duplicate(\mathtt{c}_n) - \mathtt{p}^\text{shift})$, where $\mathtt{p}^\text{shift}$ encodes the vector $[0,1,\dots,15]$ of possible $k$ values. We then compute a Lagrange polynomial $p(.)$ at the interpolation nodes $-16,-15,\dots,0,\dots,15,16$, where the polynomial value is $1$ at zero and $0$ elsewhere. In this way, the transformed ciphertext $p\left( Duplicate(\mathtt{c}_n) - \mathtt{p}^\text{shift}\right)$ is equivalent to $EQ\left(Duplicate(\mathtt{c}_n),\mathtt{p}^\text{shift}\right)$, having a $1$ at the $n$-th slot and $0$ elsewhere. Finally, $EQ\left(Duplicate(\mathtt{c}_n),k\right)$ can be derived from $EQ\left(Duplicate(\mathtt{c}_n),\mathtt{p}^\text{shift}\right)$ for different $k$ values by by applying a mask to extract the $k$-th slot and duplicating it across the first $2^{16}$ slots. This requires only one multiplication and some rotations, without further polynomial evaluation.</p>
+
+<h3 id="extra-level-reduction">Extra Level Reduction</h3>
+
+<p>After evaluating $EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right) = 1 - c_\text{diff}^{3\times2^{18}}$ and the summation of inner comparisons $\sum_{k=0}^{16} EQ\left(Duplicate(\mathtt{c}_n),k\right) * \mathtt{p}^\text{out}_k = \mathtt{c}_\text{sum}$, these results must be multiplied together, which incurs an additional level of computation. To avoid this, the multiplication order can be rearranged as $\mathtt{c}_\text{sum} - c_\text{diff}^{2^{19}} \times\left(c_\text{diff}^{2^{18}} \times \mathtt{c}_\text{sum}\right)$, thus maintaining the total computation depth at 20.</p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] <strong>Lookup Table Challenge</strong> https://fherma.io/content/66d9c84af6ea18c58bf5e97a</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [FHERMA](https://fherma.io) [SHL challenge](https://fherma.io/challenges/661643316a54e9817d3706f6).]]></summary></entry><entry><title type="html">CIFAR-10 Encrypted Image Classification</title><link href="http://localhost:4000/posts/fherma-challenge/cifar10/" rel="alternate" type="text/html" title="CIFAR-10 Encrypted Image Classification" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-cifar10</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/cifar10/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/652bf663485c878710fd0209">CIFAR-10 challenge</a>.</em> 
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The challenge task involves inferring the class of an encrypted input image, a problem situated within the domain of privacy-preserving machine learning inference. This area has recently garnered significant interest from both academia and industry. The challenge is based on a public dataset, allowing unrestricted use of training data. Consequently, one could attempt to overfit a machine learning model on the entire set of 60,000 CIFAR images (comprising 50,000 training images and 10,000 testing images) to achieve optimal accuracy. This important point makes public implementations of HE image classification, which are based on conventional neural networks (e.g., CNN, ResNet), too complex to be directly used as a competitive solution.</p>
+
+<h2 id="model-selection">Model Selection</h2>
+
+<p>We experimented with various neural network architectures and ultimately decided to use the Kolmogorov-Arnold Network (KAN). Compared to traditional multilayer perceptron networks, KAN requires fewer model parameters and performs well in signal/function regression or interpolation tasks, making it well-suited for this challenge. To enhance evaluation efficiency, we adopted a variant of KAN based on Chebyshev polynomials, known as ChebyKAN [1]. The Chebyshev basis can be efficiently computed using recursive formulas, thereby reducing computational costs and minimizing ciphertext level consumption.</p>
+
+<h2 id="model-training">Model Training</h2>
+
+<p>We trained a KAN network with a single layer of learnable activation functions. To optimize runtime, we sought the lowest possible activation degree that could still achieve 100% prediction accuracy. The training code was adapted from a GitHub repository <a href="#1">[1]</a>. We successfully trained the model to a degree of 8, which required a multiplication depth of 5: one for normalizing the input vector and four for evaluating the Chebyshev polynomials.</p>
+
+<h2 id="optimization">Optimization</h2>
+
+<p>Given that the input vector consists of 3,072 elements (from a 32x32 image with three channels), the minimum ring dimension we could use in the challenge was 8,192, with up to 4,096 plaintext slots to encrypt the entire input vector. We aimed to work with this lowest ring dimension to minimize complexity and maximize computation speed.</p>
+
+<p>We observed that the dominant HE operator during inference was the rotation operator, which necessitates costly key-switching calculations. Theoretically, to compute the sum over a vector of $N$ elements packed in a single ciphertext, one must perform $\log_2(N)$ rotations using the folding technique. With an input dimension of 3,072 and an output dimension of 10 classes, the first layer’s forward pass (calculating 10 different summations for the 10 classes) would require at least $\left \lceil\log_2(3,072)\right \rceil + 10 - 1 = 21$ rotations at a ring dimension of 8,192. To reduce this number and expedite the inference process, our idea is to infer the probability for each output class based on subsampled portions of the input image.</p>
+
+<p>Specifically, the output probability for the $i$-th class was computed from pixels located at indices $i + 10j$, where $j = 0, 1, \ldots, 306$, in the flattened input vector, as illustrated in Figure 1. In this manner, the output probability of a class can be viewed as a function interpolation task over approximately 307 pixels of the input image. Calculating the sum over these subsets of evenly-spaced pixels can be optimally achieved using $\left \lceil\log_2(307)\right \rceil = 9$ rotations in total.</p>
+
+<p><img src="https://hackmd.io/_uploads/BJ9PL0JCA.png" alt="CIFAR10-Page-1" /></p>
+
+<p><em><strong>Figure 1</strong>: Pixel selection for efficient class probability computation.</em></p>
+
+<p>However, reducing the number of input dimensions also decreases accuracy, potentially falling below the acceptable threshold. To counteract this, we used multiple fragmented pixels at different offsets to predict class probabilities. Specifically, the probability for the $i$-th class was associated with pixels at positions $i + 10j + \text{offset}$, with $j = 0,\ldots, 306$ and $\text{offset} = 0, \ldots, n_{\text{offset}}$ (Figure 2). A higher $n_{\text{offset}}$ value results in higher prediction accuracy. By experimentally varying $n_{\text{offset}}$, we selected the lowest value yielding over 85% accuracy, which was $n_{\text{offset}} = 3$ for the time-oriented track, and the lowest value achieving 100% accuracy, which was $n_{\text{offset}} = 5$ for the accuracy-oriented track. Consequently, the number of rotation operations required for each track was $\left \lceil\log_2(3 \times 307)\right \rceil + 3 -1 = 12$ and $\left \lceil\log_2(5 \times 307)\right \rceil + 5 -1 = 15$, respectively. By minimizing the number of required rotations, our approach significantly accelerates processing speed compared to other solutions that operate on the full image.</p>
+
+<p><img src="https://hackmd.io/_uploads/BJL-vRJAR.png" alt="CIFAR10-Page-2" /></p>
+
+<p><em><strong>Figure 2</strong>: Pixel selection with different offsets ($n_{\text{offset}} = 3$) for enhanced class probability computation.</em></p>
+
+<h2 id="references">References</h2>
+
+<p><a name="1"></a>[1] https://github.com/SynodicMonth/ChebyKAN</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="Privacy-preserving ML" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [FHERMA](https://fherma.io) [CIFAR-10 challenge](https://fherma.io/challenges/652bf663485c878710fd0209).]]></summary></entry><entry><title type="html">IBM Parity Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/parity/" rel="alternate" type="text/html" title="IBM Parity Challenge" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-parity</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/parity/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/65ef8c4c5428d672bcc3977b">IBM Parity challenge</a>.</em> <br />
 <em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
 
 <p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
@@ -108,88 +612,4 @@ for _ in range(5):
 
 <p><a name="1"></a>[1] <strong>J.-P. Bossuat, C. Mouchet, J. Troncoso-Pastoriza and A.-P. Hubaux</strong>, “Efficient bootstrapping for approximate homomorphic encryption with non-sparse keys”, <em>Proc. EUROCRYPT</em>, pp. 587-617, 2021.</p>
 
-<p><a name="2"></a>[2] <strong>Pablo D Brubeck, Yuji Nakatsukasa, and Lloyd N Trefethen</strong>, “Vandermonde with Arnoldi”, <em>SIAM Review</em>, 63(2):405–415, 2021.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="IBM Research" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [IBM Parity challenge](https://fherma.io/challenges/65ef8c4c5428d672bcc3977b).]]></summary></entry><entry><title type="html">CIFAR-10 Encrypted Image Classification</title><link href="http://localhost:4000/posts/fherma-challenge/cifar10/" rel="alternate" type="text/html" title="CIFAR-10 Encrypted Image Classification" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-cifar10</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/cifar10/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/652bf663485c878710fd0209">CIFAR-10 challenge</a>.</em> 
-<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
-
-<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
-
-<h2 id="introduction">Introduction</h2>
-
-<p>The challenge task involves inferring the class of an encrypted input image, a problem situated within the domain of privacy-preserving machine learning inference. This area has recently garnered significant interest from both academia and industry. The challenge is based on a public dataset, allowing unrestricted use of training data. Consequently, one could attempt to overfit a machine learning model on the entire set of 60,000 CIFAR images (comprising 50,000 training images and 10,000 testing images) to achieve optimal accuracy. This important point makes public implementations of HE image classification, which are based on conventional neural networks (e.g., CNN, ResNet), too complex to be directly used as a competitive solution.</p>
-
-<h2 id="model-selection">Model Selection</h2>
-
-<p>We experimented with various neural network architectures and ultimately decided to use the Kolmogorov-Arnold Network (KAN). Compared to traditional multilayer perceptron networks, KAN requires fewer model parameters and performs well in signal/function regression or interpolation tasks, making it well-suited for this challenge. To enhance evaluation efficiency, we adopted a variant of KAN based on Chebyshev polynomials, known as ChebyKAN [1]. The Chebyshev basis can be efficiently computed using recursive formulas, thereby reducing computational costs and minimizing ciphertext level consumption.</p>
-
-<h2 id="model-training">Model Training</h2>
-
-<p>We trained a KAN network with a single layer of learnable activation functions. To optimize runtime, we sought the lowest possible activation degree that could still achieve 100% prediction accuracy. The training code was adapted from a GitHub repository <a href="#1">[1]</a>. We successfully trained the model to a degree of 8, which required a multiplication depth of 5: one for normalizing the input vector and four for evaluating the Chebyshev polynomials.</p>
-
-<h2 id="optimization">Optimization</h2>
-
-<p>Given that the input vector consists of 3,072 elements (from a 32x32 image with three channels), the minimum ring dimension we could use in the challenge was 8,192, with up to 4,096 plaintext slots to encrypt the entire input vector. We aimed to work with this lowest ring dimension to minimize complexity and maximize computation speed.</p>
-
-<p>We observed that the dominant HE operator during inference was the rotation operator, which necessitates costly key-switching calculations. Theoretically, to compute the sum over a vector of $N$ elements packed in a single ciphertext, one must perform $\log_2(N)$ rotations using the folding technique. With an input dimension of 3,072 and an output dimension of 10 classes, the first layer’s forward pass (calculating 10 different summations for the 10 classes) would require at least $\left \lceil\log_2(3,072)\right \rceil + 10 - 1 = 21$ rotations at a ring dimension of 8,192. To reduce this number and expedite the inference process, our idea is to infer the probability for each output class based on subsampled portions of the input image.</p>
-
-<p>Specifically, the output probability for the $i$-th class was computed from pixels located at indices $i + 10j$, where $j = 0, 1, \ldots, 306$, in the flattened input vector, as illustrated in Figure 1. In this manner, the output probability of a class can be viewed as a function interpolation task over approximately 307 pixels of the input image. Calculating the sum over these subsets of evenly-spaced pixels can be optimally achieved using $\left \lceil\log_2(307)\right \rceil = 9$ rotations in total.</p>
-
-<p><img src="https://hackmd.io/_uploads/BJ9PL0JCA.png" alt="CIFAR10-Page-1" /></p>
-
-<p><em><strong>Figure 1</strong>: Pixel selection for efficient class probability computation.</em></p>
-
-<p>However, reducing the number of input dimensions also decreases accuracy, potentially falling below the acceptable threshold. To counteract this, we used multiple fragmented pixels at different offsets to predict class probabilities. Specifically, the probability for the $i$-th class was associated with pixels at positions $i + 10j + \text{offset}$, with $j = 0,\ldots, 306$ and $\text{offset} = 0, \ldots, n_{\text{offset}}$ (Figure 2). A higher $n_{\text{offset}}$ value results in higher prediction accuracy. By experimentally varying $n_{\text{offset}}$, we selected the lowest value yielding over 85% accuracy, which was $n_{\text{offset}} = 3$ for the time-oriented track, and the lowest value achieving 100% accuracy, which was $n_{\text{offset}} = 5$ for the accuracy-oriented track. Consequently, the number of rotation operations required for each track was $\left \lceil\log_2(3 \times 307)\right \rceil + 3 -1 = 12$ and $\left \lceil\log_2(5 \times 307)\right \rceil + 5 -1 = 15$, respectively. By minimizing the number of required rotations, our approach significantly accelerates processing speed compared to other solutions that operate on the full image.</p>
-
-<p><img src="https://hackmd.io/_uploads/BJL-vRJAR.png" alt="CIFAR10-Page-2" /></p>
-
-<p><em><strong>Figure 2</strong>: Pixel selection with different offsets ($n_{\text{offset}} = 3$) for enhanced class probability computation.</em></p>
-
-<h2 id="references">References</h2>
-
-<p><a name="1"></a>[1] https://github.com/SynodicMonth/ChebyKAN</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="Privacy-preserving ML" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [FHERMA](https://fherma.io) [CIFAR-10 challenge](https://fherma.io/challenges/652bf663485c878710fd0209).]]></summary></entry><entry><title type="html">Bitwise Shift Left Challenge</title><link href="http://localhost:4000/posts/fherma-challenge/shl/" rel="alternate" type="text/html" title="Bitwise Shift Left Challenge" /><published>2024-09-24T00:00:00+10:00</published><updated>2024-09-24T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-shl</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/shl/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io">FHERMA</a> <a href="https://fherma.io/challenges/661643316a54e9817d3706f6">SHL challenge</a>.</em> <br />
-<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
-
-<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
-
-<h2 id="introduction">Introduction</h2>
-
-<p>The objective of the challenge is to evaluate a bitwise shift left operation on an encrypted integer within the range $[0,2^{16}-1]$. This operation can be defined as $SHL(c_x,c_n) = c_{(x * 2^n) \mod 2^{16}}$, where $c_x$ and $c_n$ are ciphertexts encrypting the input integer $x$ and the number of shifted bits $n$, respectively, in their first slots. The value of $n$ is constrained between 0 and 16. The output ciphertext should encrypt the logical shifted value $SHL(x,n) = (x * 2^n) \mod 2^{16}$ in its first slot, which is also a value in the range $[0,2^{16}-1]$.</p>
-
-<h2 id="approach">Approach</h2>
-
-<p>The proposed solution employs a two-way lookup table approach, using $x$ and $n$ as keys and $SHL(x,n)$ as the lookup value. In this way, the computation in the encrypted domain is expressed as:
-\[ SHL(c_x, c_n) = \sum_{i=0}^{2^{16}-1}\left( EQ(c_x, i) \times \sum_{k=0}^{15} EQ(c_n, k) \times SHL(i, k) \right), \]
-where
-\[
-    EQ(a,b) = \begin{cases} 
-        1 &amp; \text{if } a = b \\ 
-        0 &amp; \text{if } a \neq b 
-    \end{cases}
-\]
-is the equality function. Notably, the term for $k=16$ is omitted since the computation naturally returns $0$ when $n=16$, which is the correct result.</p>
-
-<p>To optimize the number of comparisons, we leverage the SIMD property of the underlying BFV/BGV system by transforming the above equation to:
-\[
-	SHL(\mathtt{c}_x,\mathtt{c}_n) = SumSlots\left( EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right) * \sum_{k=0}^{16} EQ\left(Duplicate(\mathtt{c}_n),k\right) * \mathtt{p}^\text{out}_k \right).
-\]</p>
-
-<p>Here the $Duplicate(.)$ function function replicates the value in the first slot of a ciphertext across its first $2^{16}$ slots, while the $SumSlots(.)$ function sums the first $2^{16}$ slots of a ciphertext, placing the result in the first slot. These functions can be implemented using sequencial rotation and addition operations. Additionally, $\mathtt{p}^\text{in}$ is the plaintext that encodes the vector $[0,1,\dots,2^{16}-1]$ containing all possible input values, and $\mathtt{p}^\text{out}_k$ encodes the vector $[SHL(0,k),SHL(1,k),\dots,SHL(2^{16}-1,k)]$ for all possible output values given the shifted amount $k$.</p>
-
-<p>By precompute the plaintexts $\mathtt{p}^\text{out}_k$ for all possible $k$ values, the remaining task is to implement the equality comparison function between a ciphertext and a plaintext value. Due to different ranges of $x$ and $n$, two distinct equality comparison methods are employed for optimal performance. Specifically, Fermat’s Little Theorem (FLT) is used for comparing values in $Duplicate(\mathtt{c}_x)$ and $\mathtt{p}^\text{in}$ (referred to as the outer comparison), while the Lagrange polynomial method is used for comparing $Duplicate(\mathtt{c}_n)$ and $k$ (referred to as the inner comparison).</p>
-
-<h3 id="outer-equality-comparison">Outer Equality Comparison</h3>
-
-<p>The FLT method is utilized to evaluate $EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right)$. This function returns a ciphertext where the $i$-th slot is one if $i$ equals $x$ and zero otherwise. This approach is similar to the FHERMA’s Lookup Table solution <a href="#1">[1]</a>. However, given the input range $[0,2^{16}-1]$, the plaintext modulus $Q$ must be set higher, specifically $Q=786433=3\times2^{18}+1$, to encode the values correctly. To begin with, we subtract $\mathtt{p}^\text{in}$ from $Duplicate(\mathtt{c}_x)$. The resulting ciphertext $c_\text{diff} = (Duplicate(\mathtt{c}_x)-\mathtt{p}^\text{in})$ contains exactly one zero at the $x$-th slot and non-zero values in other slots. We then compute the exponentiation $c_\text{diff}^{3\times2^{18}} = c_\text{diff}^{2^{19}}\times c_\text{diff}^{2^{18}}$, which consumes 20 multiplication levels in total. The final comparison results is obtained by evaluating $1 - c_\text{diff}^{3\times2^{18}}$.</p>
-
-<h3 id="inner-equality-comparison">Inner Equality Comparison</h3>
-
-<p>For a fixed value of $k$ ($0\leq k \leq 15$), the function $EQ\left(Duplicate(\mathtt{c}_n),k\right)$ can be represented by a Lagrange polynomial with integer coefficients $p(z)$, calculated over the interpolation nodes $0,1,\dots,16$ and the corresponding values $p(z) = 1$ at $z=k$ and $0$ elsewhere. The coefficients of $p(n)$ are computed by using modular multiplication and division in the plaintext modulus $Q$. As the degree of $p$ is 17, its evaluation consumes 5 multiplication levels using the Paterson-Stockmeyer algorithm. We modified the <code class="language-plaintext highlighter-rouge">EvalPolyPS</code> from the OpenFHE library to accommodate integer coefficient polynomials.</p>
-
-<p>However, the above approach requires 16 executions of the Paterson-Stockmeyer algorithm, which can be time-consuming. This can be reduced to a single execution in a SIMD fashion. Similar to the outer comparison, we calculate the subtraction $(Duplicate(\mathtt{c}_n) - \mathtt{p}^\text{shift})$, where $\mathtt{p}^\text{shift}$ encodes the vector $[0,1,\dots,15]$ of possible $k$ values. We then compute a Lagrange polynomial $p(.)$ at the interpolation nodes $-16,-15,\dots,0,\dots,15,16$, where the polynomial value is $1$ at zero and $0$ elsewhere. In this way, the transformed ciphertext $p\left( Duplicate(\mathtt{c}_n) - \mathtt{p}^\text{shift}\right)$ is equivalent to $EQ\left(Duplicate(\mathtt{c}_n),\mathtt{p}^\text{shift}\right)$, having a $1$ at the $n$-th slot and $0$ elsewhere. Finally, $EQ\left(Duplicate(\mathtt{c}_n),k\right)$ can be derived from $EQ\left(Duplicate(\mathtt{c}_n),\mathtt{p}^\text{shift}\right)$ for different $k$ values by by applying a mask to extract the $k$-th slot and duplicating it across the first $2^{16}$ slots. This requires only one multiplication and some rotations, without further polynomial evaluation.</p>
-
-<h3 id="extra-level-reduction">Extra Level Reduction</h3>
-
-<p>After evaluating $EQ\left(Duplicate(\mathtt{c}_x),\mathtt{p}^\text{in}\right) = 1 - c_\text{diff}^{3\times2^{18}}$ and the summation of inner comparisons $\sum_{k=0}^{16} EQ\left(Duplicate(\mathtt{c}_n),k\right) * \mathtt{p}^\text{out}_k = \mathtt{c}_\text{sum}$, these results must be multiplied together, which incurs an additional level of computation. To avoid this, the multiplication order can be rearranged as $\mathtt{c}_\text{sum} - c_\text{diff}^{2^{19}} \times\left(c_\text{diff}^{2^{18}} \times \mathtt{c}_\text{sum}\right)$, thus maintaining the total computation depth at 20.</p>
-
-<h2 id="references">References</h2>
-
-<p><a name="1"></a>[1] <strong>Lookup Table Challenge</strong> https://fherma.io/content/66d9c84af6ea18c58bf5e97a</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [FHERMA](https://fherma.io) [SHL challenge](https://fherma.io/challenges/661643316a54e9817d3706f6).]]></summary></entry></feed>
+<p><a name="2"></a>[2] <strong>Pablo D Brubeck, Yuji Nakatsukasa, and Lloyd N Trefethen</strong>, “Vandermonde with Arnoldi”, <em>SIAM Review</em>, 63(2):405–415, 2021.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="IBM Research" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my winning solution for the [IBM Parity challenge](https://fherma.io/challenges/65ef8c4c5428d672bcc3977b).]]></summary></entry></feed>

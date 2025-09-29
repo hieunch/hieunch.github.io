@@ -1,0 +1,763 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en-US" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Ethereum Fraud Detection via SVM - Homepage</title>
+<meta name="description" content="The article details my winning solution for the Private Fraud Detection via Homomorphic Support Vector Machines.">
+
+
+  <meta name="author" content="Chi-Hieu Nguyen">
+  
+  <meta property="article:author" content="Chi-Hieu Nguyen">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Homepage">
+<meta property="og:title" content="Ethereum Fraud Detection via SVM">
+<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/ethsvm/">
+
+
+  <meta property="og:description" content="The article details my winning solution for the Private Fraud Detection via Homomorphic Support Vector Machines.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2025-04-16T00:00:00+10:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/ethsvm/">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Homepage Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single" dir="ltr">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Homepage
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/cv.pdf"
+                
+                
+              >CV</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/publications/"
+                
+                
+              >Publications</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/blog_posts/"
+                
+                
+              >Blog Posts</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/demos/"
+                
+                
+              >Demos</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/images/hieu.jpg" alt="Chi-Hieu Nguyen" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">Chi-Hieu Nguyen</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Ph.D. Student at the University of Technology Sydney</p>
+
+      </div>
+    
+
+    <div class="author__urls-wrapper">
+      <!-- <button class="btn btn--inverse">Follow</button> -->
+      <ul class="author__urls social-icons">
+        
+          <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Sydney, Australia</span>
+          </li>
+        
+
+        
+          
+            
+          
+            
+          
+            
+              <li><a href="https://linkedin.com/in/hieu-nguyen-ba6548316" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span class="label">Linkedin</span></a></li>
+            
+          
+            
+              <li><a href="https://scholar.google.com/citations?user=MqGsKf4AAAAJ" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fa-brands fa-fw fa-google-scholar" aria-hidden="true"></i><span class="label">Google Scholar</span></a></li>
+            
+          
+            
+          
+            
+          
+            
+          
+        
+
+        
+
+        
+          <li>
+            <a href="mailto:chihieu2506@gmail.com" rel="me" class="u-email">
+              <meta itemprop="email" content="chihieu2506@gmail.com" />
+              <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+            </a>
+          </li>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Ethereum Fraud Detection via SVM">
+    <meta itemprop="description" content="The article details my winning solution for the Private Fraud Detection via Homomorphic Support Vector Machines.">
+    <meta itemprop="datePublished" content="2025-04-16T00:00:00+10:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">
+            <a href="http://localhost:4000/posts/fherma-challenge/ethsvm/" itemprop="url">Ethereum Fraud Detection via SVM
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/66e8180996829cc963805ffb">Private Fraud Detection challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/hieu-nguyen-ba6548316">Chi-Hieu Nguyen</a>, University of Technology Sydney, Australia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The challenge requires training a SVM model on a public clear-text dataset for Ethereum fraud detection, then evaluating it on a private encrypted test set using HE. The goal is to classify transactions as fraudulent or legitimate while preserving data privacy during inference. SVMs are well-suited for HE-based inference due to their reliance on a decision function that can often be simplified to a linear operation (e.g., a dot product for linear kernels).</p>
+
+<h2 id="data-preprocessing">Data Preprocessing</h2>
+
+<p>The public training dataset contains Ethereum transaction features for fraud detection. We analyzed feature skewness using <code class="language-plaintext highlighter-rouge">scipy.stats.skew</code>, revealing high skewness (&gt;1) across all columns, indicating non-normal distributions.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                               <span class="n">Column</span>   <span class="n">Skewness</span>
+<span class="mi">0</span>                                  <span class="n">ERC20</span> <span class="n">avg</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">88.696538</span>
+<span class="mi">1</span>                                  <span class="n">ERC20</span> <span class="nb">max</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">88.682094</span>
+<span class="mi">2</span>                                  <span class="n">ERC20</span> <span class="nb">min</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">88.679603</span>
+<span class="mi">3</span>                                   <span class="n">ERC20</span> <span class="nb">max</span> <span class="n">val</span> <span class="n">rec</span>  <span class="mf">88.631605</span>
+<span class="mi">4</span>                          <span class="n">ERC20</span> <span class="n">total</span> <span class="n">Ether</span> <span class="n">received</span>  <span class="mf">88.608206</span>
+<span class="mi">5</span>                              <span class="n">ERC20</span> <span class="n">total</span> <span class="n">ether</span> <span class="n">sent</span>  <span class="mf">88.576675</span>
+<span class="mi">6</span>                                    <span class="n">avg</span> <span class="n">val</span> <span class="n">received</span>  <span class="mf">86.632342</span>
+<span class="mi">7</span>                                        <span class="nb">min</span> <span class="n">val</span> <span class="n">sent</span>  <span class="mf">76.084382</span>
+<span class="mi">8</span>                          <span class="nb">min</span> <span class="n">value</span> <span class="n">sent</span> <span class="n">to</span> <span class="n">contract</span>  <span class="mf">71.400808</span>
+<span class="mi">9</span>                            <span class="nb">max</span> <span class="n">val</span> <span class="n">sent</span> <span class="n">to</span> <span class="n">contract</span>  <span class="mf">70.506146</span>
+<span class="mi">10</span>                         <span class="n">total</span> <span class="n">ether</span> <span class="n">sent</span> <span class="n">contracts</span>  <span class="mf">70.506005</span>
+<span class="bp">...</span>
+<span class="mi">36</span>  <span class="n">total</span> <span class="nf">transactions </span><span class="p">(</span><span class="n">including</span> <span class="n">tnx</span> <span class="n">to</span> <span class="n">create</span> <span class="n">co</span><span class="p">...</span>   <span class="mf">6.797555</span>
+<span class="mi">37</span>            <span class="n">Time</span> <span class="n">Diff</span> <span class="n">between</span> <span class="n">first</span> <span class="ow">and</span> <span class="nf">last </span><span class="p">(</span><span class="n">Mins</span><span class="p">)</span>   <span class="mf">1.802201</span>
+</code></pre></div></div>
+
+<p>High skewness suggests that features are heavily tailed, which can degrade SVM performance by causing numerical instability or poor separation of classes. Transforming features to a logarithmic scale reduces skewness, making the data more symmetric and closer to a normal distribution. This ultimately boosts classification accuracy.</p>
+
+<p>Since the dataset includes negative values, we first apply <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> to scale features to [0, 1], then use a polynomial approximation of the logarithm (<code class="language-plaintext highlighter-rouge">poly_log</code>) to enable HE-compatible evaluation.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scaler</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="nf">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="nf">poly_log</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="nf">poly_log</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">poly_log</code> function approximates the logarithm over [0.0001, 1] using Chebyshev interpolation with degree 121 for high precision:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">linspace</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">poly_log</span> <span class="o">=</span> <span class="n">C</span><span class="p">.</span><span class="n">Chebyshev</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">121</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>After log transformation, we apply a second <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> to rescale the data back to [0, 1].</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scaler2</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler2</span><span class="p">.</span><span class="nf">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler2</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="https://hackmd.io/_uploads/Bkp-Qn5Rkx.png" alt="log" />
+<em><strong>Figure 1</strong>: Illustration of the log approximation.</em></p>
+
+<h2 id="model-training">Model Training</h2>
+
+<p>We implement the SVM using <code class="language-plaintext highlighter-rouge">sklearn.svm.SVC</code> and tune hyperparameters <code class="language-plaintext highlighter-rouge">C</code> and <code class="language-plaintext highlighter-rouge">gamma</code> with GridSearchCV.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tuned_parameters</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="sh">"</span><span class="s">gamma</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.001</span><span class="p">],</span> <span class="sh">"</span><span class="s">C</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]},</span>
+<span class="p">]</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="nc">GridSearchCV</span><span class="p">(</span><span class="nc">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="sh">'</span><span class="s">linear</span><span class="sh">'</span><span class="p">),</span> <span class="n">tuned_parameters</span><span class="p">,</span> <span class="n">refit</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="sh">'</span><span class="s">f1</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">grid</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We select the linear kernel for its simplicity and HE compatibility. Non-linear kernels (e.g., RBF, polynomial) could improve accuracy but introduce significant complexity in HE. They require evaluating the kernel function over potentially hundreds of support vectors, involving costly operations like rotations. In contrast, the linear kernel’s decision function is a single dot product between the input vector and the model’s weights, enabling faster and more efficient HE inference.</p>
+
+<p>The grid search yields an F1 score of 0.9025 on the training set. Validation on a separate clear-text test set achieves an F1 score of 0.9161, confirming robust generalization.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Train F1 Score :</span><span class="sh">"</span><span class="p">,</span><span class="n">grid</span><span class="p">.</span><span class="n">best_score_</span><span class="p">)</span>
+<span class="n">best_y_pr</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">Test F1 Score: </span><span class="sh">'</span><span class="p">,</span> <span class="nf">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">best_y_pr</span><span class="p">))</span>
+    
+<span class="n">Output</span><span class="p">:</span>
+<span class="n">Train</span> <span class="n">F1</span> <span class="n">Score</span> <span class="p">:</span> <span class="mf">0.9025388783902716</span>
+<span class="n">Test</span> <span class="n">F1</span> <span class="n">Score</span><span class="p">:</span>  <span class="mf">0.9161290322580645</span>
+</code></pre></div></div>
+
+<h2 id="he-implementation">HE Implementation</h2>
+
+<p>For HE inference, we use the CKKS scheme to evaluate the trained SVM on encrypted inputs. The process mirrors preprocessing and model evaluation in the clear-text domain but operates on ciphertexts.</p>
+
+<p>First, we apply the <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> and <code class="language-plaintext highlighter-rouge">poly_log</code> transformation to the input ciphertext:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Extract attributes from the first MinMaxScaler, where scale_1 = scaler.scale_ and min_1 = scaler.min_</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">scale_1</span><span class="p">));</span>
+<span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAddInPlace</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">min_1</span><span class="p">));</span>
+    
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">poly_cheb</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    
+<span class="c1">// Similarly, we have scale_2 = scaler2.scale_ and min_2 = scaler2.min_</span>
+<span class="c1">// However, this second scaling can be skipped as discussed below</span>
+<span class="c1">// m_OutputC = m_cc-&gt;EvalMult(m_OutputC, m_cc-&gt;MakeCKKSPackedPlaintext(scale_2));</span>
+<span class="c1">// m_cc-&gt;EvalAddInPlace(m_OutputC, m_cc-&gt;MakeCKKSPackedPlaintext(min_2));</span>
+</code></pre></div></div>
+
+<p>To optimize, we skip the second scaling (<code class="language-plaintext highlighter-rouge">scaler2</code>) by fusing it with the SVM weight multiplication, reducing the multiplication depth. We adjust the model’s weights and bias accordingly:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">w</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="n">best_estimator_</span><span class="p">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="n">best_estimator_</span><span class="p">.</span><span class="n">intercept_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">scaler2</span><span class="p">.</span><span class="n">min_</span> <span class="o">*</span> <span class="n">w</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">scaler2</span><span class="p">.</span><span class="n">scale_</span>
+</code></pre></div></div>
+
+<p>The HE evaluation computes the decision function as a dot product:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">w</span><span class="p">));</span>
+<span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">64</span><span class="p">;</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalRotate</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">k</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>This accumulates the dot product result in the first slot of the ciphertext. To obtain the predicted label, we compute the sign of this value. We scale the first slot to [-1, 1], mask other slots containing dummy values to avoid overflow, and apply an approximated sign function using three composite polynomials (each degree 25):</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">mask</span><span class="p">(</span><span class="mi">32768</span><span class="p">);</span>
+<span class="n">mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">;</span> <span class="c1">// Scale to [-1, 1]</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">MakeCKKSPackedPlaintext</span><span class="p">(</span><span class="n">mask</span><span class="p">));</span>
+    
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">sign_poly_1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">sign_poly_2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">m_OutputC</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalChebyshevSeries</span><span class="p">(</span><span class="n">m_OutputC</span><span class="p">,</span> <span class="n">sign_poly_3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</code></pre></div></div>
+<p>This produces the final encrypted classification label (1 for fraud, -1 for legitimate).</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>The solution achieves high accuracy (F1 &gt; 0.91) on the Ethereum fraud detection task while enabling secure inference on encrypted data with a processing delay of approximately 11 seconds per inference. By leveraging a linear SVM, Chebyshev polynomial approximations, and optimized HE operations, we balance performance and computational efficiency.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#fherma-challenge" class="page__taxonomy-item p-category" rel="tag">FHERMA Challenge</a><span class="sep">, </span>
+    
+      <a href="/tags/#homomorphic-encryption" class="page__taxonomy-item p-category" rel="tag">Homomorphic Encryption</a><span class="sep">, </span>
+    
+      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2025-04-16T00:00:00+10:00">April 16, 2025</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  <h4 class="page__share-title">Share on</h4>
+
+  <a href="https://twitter.com/intent/tweet?text=Ethereum+Fraud+Detection+via+SVM%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fethsvm%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fethsvm%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/ethsvm/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/fherma-challenge/sorting/" class="pagination--pager" title="IBM Encrypted Array Sorting Challenge">Previous</a>
+    
+    
+      <a href="/posts/fherma-challenge/matrix-inversion/" class="pagination--pager" title="Encrypted Matrix Inversion">Next</a>
+    
+  </nav>
+
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    
+<div class="page__related">
+  
+  <h2 class="page__related-title">You may also enjoy</h2>
+  <div class="grid__wrapper">
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/gelu/" rel="permalink">GELU Function over Encrypted Data
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/sentiment/" rel="permalink">Sentiment Analysis
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE model for tweet sentiment classification.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/knn/" rel="permalink">k-Nearest Neighbors Search
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          7 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for implementing kNN search over encrypted queries without revealing the data.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/house-price/" rel="permalink">House Price Prediction
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE regression model for estimating housing prices.
+</p>
+  </article>
+</div>
+
+    
+  </div>
+</div>
+
+  
+  
+</div>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <!-- <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div> -->
+
+<div class="page__footer-copyright">&copy; 2025 <a href="http://localhost:4000">Homepage</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/jekyll-themes/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

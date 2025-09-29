@@ -1,0 +1,700 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en-US" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>GELU Function over Encrypted Data - Homepage</title>
+<meta name="description" content="The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.">
+
+
+  <meta name="author" content="Chi-Hieu Nguyen">
+  
+  <meta property="article:author" content="Chi-Hieu Nguyen">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Homepage">
+<meta property="og:title" content="GELU Function over Encrypted Data">
+<meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/gelu/">
+
+
+  <meta property="og:description" content="The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2025-09-05T00:00:00+10:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/fherma-challenge/gelu/">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Homepage Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single" dir="ltr">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Homepage
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/cv.pdf"
+                
+                
+              >CV</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/publications/"
+                
+                
+              >Publications</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/blog_posts/"
+                
+                
+              >Blog Posts</a>
+            </li><li class="masthead__menu-item">
+              <a
+                href="/demos/"
+                
+                
+              >Demos</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/images/hieu.jpg" alt="Chi-Hieu Nguyen" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">Chi-Hieu Nguyen</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Ph.D. Student at the University of Technology Sydney</p>
+
+      </div>
+    
+
+    <div class="author__urls-wrapper">
+      <!-- <button class="btn btn--inverse">Follow</button> -->
+      <ul class="author__urls social-icons">
+        
+          <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Sydney, Australia</span>
+          </li>
+        
+
+        
+          
+            
+          
+            
+          
+            
+              <li><a href="https://linkedin.com/in/hieu-nguyen-ba6548316" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span class="label">Linkedin</span></a></li>
+            
+          
+            
+              <li><a href="https://scholar.google.com/citations?user=MqGsKf4AAAAJ" rel="nofollow noopener noreferrer me" itemprop="sameAs"><i class="fa-brands fa-fw fa-google-scholar" aria-hidden="true"></i><span class="label">Google Scholar</span></a></li>
+            
+          
+            
+          
+            
+          
+            
+          
+        
+
+        
+
+        
+          <li>
+            <a href="mailto:chihieu2506@gmail.com" rel="me" class="u-email">
+              <meta itemprop="email" content="chihieu2506@gmail.com" />
+              <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+            </a>
+          </li>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="GELU Function over Encrypted Data">
+    <meta itemprop="description" content="The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.">
+    <meta itemprop="datePublished" content="2025-09-05T00:00:00+10:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">
+            <a href="http://localhost:4000/posts/fherma-challenge/gelu/" itemprop="url">GELU Function over Encrypted Data
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/683eaf48eed44a699f640a92">GELU Function challenge</a>.</em> <br />
+<em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The challenge requires implementing the GeLU activation function, widely used in deep learning, under homomorphic encryption. According to the challenge description, input data are sampled from the domain $[-7,7]$ following a normal distribution. Accuracy is evaluated by counting the number of slots in the output vector where the absolute error is below $0.001$.</p>
+
+<h2 id="polynomial-approximation">Polynomial Approximation</h2>
+
+<p>We adopt a minimax approximation, e.g., using Remez algorithm, to approximate the GeLU function over the target domain, ensuring 100% accuracy across the entire range. By progressively increasing the polynomial degree, we determine that degree 22 is the minimum required to satisfy the error threshold, achieving a maximum error of $4.4 \times 10^{-4}$. <strong>Figure 1</strong> illustrates the degree-22 polynomial approximation and the corresponding absolute error. The coefficients, expressed in the Chebyshev basis, are as follows</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p = [2.205108264359930015e+00, 3.499999999999999556e+00, 1.528721347815146681e+00, -1.647976405698982102e-15, -3.325936224062873703e-01, 1.437489594390790025e-15, 1.521190036383314459e-01, -8.453684227375073390e-16, -8.430346518496759090e-02, -1.673523292483670998e-15, 4.886015896854042917e-02, 2.863693178149025070e-15, -2.791811221502403864e-02, -1.859411993163826857e-15, 1.532346888698131633e-02, -5.949712581611852003e-16, -7.993026213095437427e-03, -1.551375849918958677e-15, 3.952491617355435687e-03, -1.336721660511636056e-16, -1.857562051847814338e-03, 3.326019639171002269e-15, 1.023308862034017419e-03]
+</code></pre></div></div>
+
+<p><img src="https://hackmd.io/_uploads/r1dadCS5gx.png" alt="gelu" /></p>
+
+<p><em><strong>Figure 1</strong>: (Top) Degree-22 polynomial approximation of the GeLU function. (Bottom) Absolute approximation error across the domain.</em></p>
+
+<h2 id="polynomial-evaluation">Polynomial Evaluation</h2>
+
+<p>An important observation is that $,\text{GELU}(x) - \tfrac{x}{2},$ is an even function. Consequently, all odd coefficients of the approximated polynomial $p(x)$ are negligibly small, except for the coefficient of $x$, as reflected in the coefficients above. Leveraging this property, we can accelerate evaluation under HE by computing the second Chebyshev polynomial $T_2(x) = 2x^2 - 1$ and then expressing the polynomial as $p_{\text{even}}(T_2(x))+c_1x = p(x)$, where $p_{\text{even}}$ is a degree-11 polynomial obtained from the even coefficients of $p$. This reduces the effective polynomial degree from 22 to 11, thereby significantly lowering evaluation time.</p>
+
+<p>To evaluate $p_{\text{even}}$, one can use the default Paterson–Stockmeyer (PS) algorithm in OpenFHE. Instead, we introduce a binary-tree product decomposition strategy that preserves the ciphertext–ciphertext (CC) multiplication complexity while providing substantially greater parallelism. In this method, we first convert $p_{\text{even}}$ to the monomial basis, obtained as follows</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p_even = [0.00044269650031170116, 0.39574328076312115, -0.0629733653564327, 0.008364135635608984, -0.0007825494992434453, 5.1058610337019434e-05, -2.315976838992098e-06, 7.235122296125314e-08, -1.5214882476900954e-09, 2.0523115610681066e-11, -1.6012937509370233e-13, 5.488829795459728e-16]
+</code></pre></div></div>
+
+<p>In this form, the target polynomial is evaluated as $p(x) = p_{\text{even}}(x^2) + c_1x$. Let $c_{11}$ denote the leading coefficient of $p_{\text{even}}$, i.e., the coefficient of $x^{11}$ in $p_{\text{even}}(x)$ (equivalently, the coefficient of $x^{22}$ in $p(x)$). We normalize this coefficient to unity by rewriting
+\(p_{\text{even}}(x^2) = \tilde{p}_{\text{even}}\!\left(\left(\tfrac{x}{c_{11}^{1/22}}\right)^2\right),\)
+where the coefficients of the normalized polynomial $\tilde{p}_{\text{even}}$ are given by
+\(\tilde{c}_i = \frac{c_i}{c_{11}^{i/11}}, \quad i=0,1,\dots,11.\)</p>
+
+<p>The resulting coefficients are:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>p_tilde_even = [0.00044269650031170116, 9.654584128641837, -37.479772490316186, 121.44541723640373, -277.1991560769019, 441.23412948943434, -488.2635908159109, 372.12258290089426, -190.91004230296397, 62.82369627660221, -11.95834898654424, 1.0000000000000009]
+</code></pre></div></div>
+
+<p>This transformation ensures that the leading coefficient is normalized to one. Next, $\tilde{p}_{\text{even}}$ is factored into five quadratic polynomials and one linear polynomial:
+\(\tilde{p}_{\text{even}}(x) = (x^2+b_1x+a_1)\dots(x^2+b_5x+a_5)(x+a_6).\)
+Each of these six factor polynomials is computed concurrently using OpenMP. The corresponding C++ implementation is shown below:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Scale input x by c_{11}^(1/22) = (5.488829795459728e-16)^(1/22)</span>
+<span class="k">auto</span> <span class="n">x</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">m_InputC</span><span class="p">,</span> <span class="mf">0.20246035278443494</span><span class="p">);</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalSquare</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">x_square</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalSquare</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+<span class="c1">// Define factor coefficients</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="p">{</span><span class="mf">5.569522767147481</span><span class="p">,</span> <span class="mf">4.210402755985315</span><span class="p">,</span> <span class="mf">0.19986968808436417</span><span class="p">,</span> <span class="mf">0.8830278939922745</span><span class="p">,</span> <span class="mf">2.333178076905341</span><span class="p">,</span> <span class="mf">4.584534226472708e-05</span><span class="p">};</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">B</span> <span class="o">=</span> <span class="p">{</span><span class="o">-</span><span class="mf">4.6890748970212295</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.8468619742495944</span><span class="p">,</span> <span class="mf">0.006438840954910282</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.9788392119088897</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.4500575896613714</span><span class="p">};</span>
+
+<span class="cp">#pragma omp parallel for
+</span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Compute (x + a_6)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">GetScheme</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">LevelReduceInternalInPlace</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Compute (x^2 + b_i x + a_i)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalMult</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAdd</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">m_cc</span><span class="o">-&gt;</span><span class="n">EvalAddInPlace</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x_square</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notably, $x^2$ is computed only once and reused across factors, requiring only a single CC multiplication for all six factor polynomials.</p>
+
+<p>The factors are then combined using binary-tree multiplication in a depth-optimal manner:
+$\tilde{p}<em>{\text{even}}^{1,2}(x) = (cx^2+b_1x+a_1)(cx^2+b_2x+a_2)$,
+$\tilde{p}</em>{\text{even}}^{3,4}(x) = (cx^2+b_3x+a_3)(cx^2+b_4x+a_4)$,
+$\tilde{p}<em>{\text{even}}^{5,6}(x) = (cx^2+b_5x+a_5)(x+a_6)$,
+$\tilde{p}</em>{\text{even}}^{3,4,5,6}(x) = \tilde{p}<em>{\text{even}}^{3,4}(x)\tilde{p}</em>{\text{even}}^{5,6}(x)$,
+$\tilde{p}<em>{\text{even}}(x) = \tilde{p}</em>{\text{even}}^{1,2}(x)\tilde{p}<em>{\text{even}}^{3,4,5,6}(x)$.
+This procedure requires 5 CC multiplications for the binary-tree stage, resulting in a total of 6 multiplications for the entire polynomial, which is identical to the PS algorithm. Notably, the evaluation of $\tilde{p}</em>{\text{even}}^{1,2}$, $\tilde{p}<em>{\text{even}}^{3,4}$, and $\tilde{p}</em>{\text{even}}^{5,6}$ can also be performed in parallel. This enhanced concurrency results in an approximate 30% performance improvement over the PS approach.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#fherma-challenge" class="page__taxonomy-item p-category" rel="tag">FHERMA Challenge</a><span class="sep">, </span>
+    
+      <a href="/tags/#homomorphic-encryption" class="page__taxonomy-item p-category" rel="tag">Homomorphic Encryption</a><span class="sep">, </span>
+    
+      <a href="/tags/#openfhe" class="page__taxonomy-item p-category" rel="tag">OpenFHE</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2025-09-05T00:00:00+10:00">September 5, 2025</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  <h4 class="page__share-title">Share on</h4>
+
+  <a href="https://twitter.com/intent/tweet?text=GELU+Function+over+Encrypted+Data%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fgelu%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Ffherma-challenge%2Fgelu%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://localhost:4000/posts/fherma-challenge/gelu/" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/fherma-challenge/sentiment/" class="pagination--pager" title="Sentiment Analysis">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    
+<div class="page__related">
+  
+  <h2 class="page__related-title">You may also enjoy</h2>
+  <div class="grid__wrapper">
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/sentiment/" rel="permalink">Sentiment Analysis
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE model for tweet sentiment classification.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/knn/" rel="permalink">k-Nearest Neighbors Search
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          7 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for implementing kNN search over encrypted queries without revealing the data.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/house-price/" rel="permalink">House Price Prediction
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for building an FHE regression model for estimating housing prices.
+</p>
+  </article>
+</div>
+
+    
+      
+      
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+      <div class="archive__item-teaser">
+        <img src="/assets/images/placeholder.jpg" alt="">
+      </div>
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/posts/fherma-challenge/matrix-inversion/" rel="permalink">Encrypted Matrix Inversion
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          6 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for performing efficient inversion of encrypted matrices.
+</p>
+  </article>
+</div>
+
+    
+  </div>
+</div>
+
+  
+  
+</div>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <!-- <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div> -->
+
+<div class="page__footer-copyright">&copy; 2025 <a href="http://localhost:4000">Homepage</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/jekyll-themes/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
