@@ -11,7 +11,7 @@
     <meta charset="utf-8">
 
 <!-- begin _includes/seo.html --><title>GELU Function over Encrypted Data - Homepage</title>
-<meta name="description" content="The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.">
+<meta name="description" content="The article details my solution for designing an algorithm to evaluate the GELU activation on an encrypted vector.">
 
 
   <meta name="author" content="Chi-Hieu Nguyen">
@@ -27,7 +27,7 @@
 <meta property="og:url" content="http://localhost:4000/posts/fherma-challenge/gelu/">
 
 
-  <meta property="og:description" content="The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.">
+  <meta property="og:description" content="The article details my solution for designing an algorithm to evaluate the GELU activation on an encrypted vector.">
 
 
 
@@ -76,6 +76,7 @@
     tex2jax: {
       skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
       inlineMath: [['$','$']],
+      displayMath: [['$$','$$'], ["\\[","\\]"], ["\\(","\\)"]],
       processEscapes: true
     }
   });
@@ -293,7 +294,7 @@
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
     <meta itemprop="headline" content="GELU Function over Encrypted Data">
-    <meta itemprop="description" content="The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.">
+    <meta itemprop="description" content="The article details my solution for designing an algorithm to evaluate the GELU activation on an encrypted vector.">
     <meta itemprop="datePublished" content="2025-09-05T00:00:00+10:00">
     
 
@@ -393,13 +394,19 @@ Each of these six factor polynomials is computed concurrently using OpenMP. The 
 
 <p>Notably, $x^2$ is computed only once and reused across factors, requiring only a single CC multiplication for all six factor polynomials.</p>
 
-<p>The factors are then combined using binary-tree multiplication in a depth-optimal manner:
-$\tilde{p}<em>{\text{even}}^{1,2}(x) = (cx^2+b_1x+a_1)(cx^2+b_2x+a_2)$,
-$\tilde{p}</em>{\text{even}}^{3,4}(x) = (cx^2+b_3x+a_3)(cx^2+b_4x+a_4)$,
-$\tilde{p}<em>{\text{even}}^{5,6}(x) = (cx^2+b_5x+a_5)(x+a_6)$,
-$\tilde{p}</em>{\text{even}}^{3,4,5,6}(x) = \tilde{p}<em>{\text{even}}^{3,4}(x)\tilde{p}</em>{\text{even}}^{5,6}(x)$,
-$\tilde{p}<em>{\text{even}}(x) = \tilde{p}</em>{\text{even}}^{1,2}(x)\tilde{p}<em>{\text{even}}^{3,4,5,6}(x)$.
-This procedure requires 5 CC multiplications for the binary-tree stage, resulting in a total of 6 multiplications for the entire polynomial, which is identical to the PS algorithm. Notably, the evaluation of $\tilde{p}</em>{\text{even}}^{1,2}$, $\tilde{p}<em>{\text{even}}^{3,4}$, and $\tilde{p}</em>{\text{even}}^{5,6}$ can also be performed in parallel. This enhanced concurrency results in an approximate 30% performance improvement over the PS approach.</p>
+<p>The factors are then combined using binary-tree multiplication in a depth-optimal manner:</p>
+
+<p>$\tilde{p}_{\text{even}}^{1,2}(x) = (cx^2+b_1x+a_1)(cx^2+b_2x+a_2)$,</p>
+
+<p>$\tilde{p}_{\text{even}}^{3,4}(x) = (cx^2+b_3x+a_3)(cx^2+b_4x+a_4)$,</p>
+
+<p>$\tilde{p}_{\text{even}}^{5,6}(x) = (cx^2+b_5x+a_5)(x+a_6)$,</p>
+
+<p>$\tilde{p}_{\text{even}}^{3,4,5,6}(x) = \tilde{p}_{\text{even}}^{3,4}(x)\tilde{p}_{\text{even}}^{5,6}(x)$,</p>
+
+<p>$\tilde{p}_{\text{even}}(x) = \tilde{p}_{\text{even}}^{1,2}(x)\tilde{p}_{\text{even}}^{3,4,5,6}(x)$.</p>
+
+<p>This procedure requires 5 CC multiplications for the binary-tree stage, resulting in a total of 6 multiplications for the entire polynomial, which is identical to the PS algorithm. Notably, the evaluation of $\tilde{p}_{\text{even}}^{1,2}$, $\tilde{p}_{\text{even}}^{3,4}$, and $\tilde{p}_{\text{even}}^{5,6}$ can also be performed in parallel. This enhanced concurrency results in an approximate 30% performance improvement over the PS approach.</p>
 
         
       </section>

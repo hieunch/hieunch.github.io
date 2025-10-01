@@ -76,6 +76,7 @@
     tex2jax: {
       skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
       inlineMath: [['$','$']],
+      displayMath: [['$$','$$'], ["\\[","\\]"], ["\\(","\\)"]],
       processEscapes: true
     }
   });
@@ -372,42 +373,50 @@
 
 <h3 id="performing-matrix-multiplication">Performing Matrix Multiplication</h3>
 
-<p>Given two matrices $X[a,b]$ and $Y[b,c]$, to compute $Z=XY$, we encode $X$ and $Y$ so the contracted dimension (the dimension over which the summation runs over) aligns in their tensor shapes. One possible encoding is $X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}]$ and $Y[\frac{1}{t_1},\frac{b}{t2},\frac{c}{t3}]$. The multiplication proceeds as:</p>
+<p>Given two matrices $X[a,b]$ and $Y[b,c]$, to compute $Z=XY$, we encode $X$ and $Y$ so the contracted dimension (the dimension over which the summation runs over) aligns in their tensor shapes. One possible encoding is $X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}]$ and $Y[\frac{1}{t_1},\frac{b}{t_2},\frac{c}{t_3}]$. The multiplication proceeds as:</p>
 
-<p>$X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}], 3)$,
-$Y[\frac{</em>}{t_1},\frac{b}{t2},\frac{c}{t3}] = duplicate(Y[\frac{1}{t_1},\frac{b}{t2},\frac{c}{t3}], 1)$,
-$Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}] = sum(X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}]</em>Y[\frac{*}{t_1},\frac{b}{t2},\frac{c}{t3}], 2)$,</p>
+<p>$X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}], 3)$,</p>
 
-<p>where $duplicate(T,i)$ duplicates the tensor along the $i$-th dimension, and $sum(T,i)$ sums over the $i$-th dimension. The resulting tensor $Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}]$ contains unknown values in the second dimension, denoted by $(1?)$. To enable further computations, we clear unused slots using the $clear$ operator:</p>
+<p>$Y[\frac{*}{t_1},\frac{b}{t_2},\frac{c}{t_3}] = duplicate(Y[\frac{1}{t_1},\frac{b}{t_2},\frac{c}{t_3}], 1)$,</p>
 
-<p>$clear(Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}]) = Z[\frac{a}{t_1},\frac{1}{t2},\frac{c}{t3}]$.</p>
+<p>$Z[\frac{a}{t_1},\frac{1?}{t_2},\frac{c}{t_3}] = sum(X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}]*Y[\frac{*}{t_1},\frac{b}{t_2},\frac{c}{t_3}], 2)$,</p>
+
+<p>where $duplicate(T,i)$ duplicates the tensor along the $i$-th dimension, and $sum(T,i)$ sums over the $i$-th dimension. The resulting tensor $Z[\frac{a}{t_1},\frac{1?}{t_2},\frac{c}{t_3}]$ contains unknown values in the second dimension, denoted by $(1?)$. To enable further computations, we clear unused slots using the $clear$ operator:</p>
+
+<p>$clear(Z[\frac{a}{t_1},\frac{1?}{t_2},\frac{c}{t_3}]) = Z[\frac{a}{t_1},\frac{1}{t_2},\frac{c}{t_3}]$.</p>
 
 <p>The $clear$ operation involves multiplication with a plaintext mask, incurring one multiplicative level.</p>
 
-<p>Matrix transposition, e.g., from $X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}]$ to $X^\top[\frac{1}{t_1},\frac{b}{t2},\frac{a}{t3}]$, is performed as follows:</p>
+<p>Matrix transposition, e.g., from $X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}]$ to $X^\top[\frac{1}{t_1},\frac{b}{t_2},\frac{a}{t_3}]$, is performed as follows:</p>
 
-<p>$X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}], 3)$,
-$I[\frac{a}{t_1},\frac{</em>}{t2},\frac{a}{t3}] = duplicate(I[\frac{a}{t_1},\frac{1}{t2},\frac{a}{t3}], 2)$,
-$X^\top[\frac{1?}{t_1},\frac{b}{t2},\frac{a}{t3}] = sum(X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}]</em>I[\frac{a}{t_1},\frac{*}{t2},\frac{a}{t3}], 1)$,
-$X^\top[\frac{1}{t_1},\frac{b}{t2},\frac{a}{t3}] = clear(X^\top[\frac{1?}{t_1},\frac{b}{t2},\frac{a}{t3}])$,</p>
+<p>$X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}], 3)$,</p>
+
+<p>$I[\frac{a}{t_1},\frac{*}{t_2},\frac{a}{t_3}] = duplicate(I[\frac{a}{t_1},\frac{1}{t_2},\frac{a}{t_3}], 2)$,</p>
+
+<p>$X^\top[\frac{1?}{t_1},\frac{b}{t_2},\frac{a}{t_3}] = sum(X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}]*I[\frac{a}{t_1},\frac{*}{t_2},\frac{a}{t_3}], 1)$,</p>
+
+<p>$X^\top[\frac{1}{t_1},\frac{b}{t_2},\frac{a}{t_3}] = clear(X^\top[\frac{1?}{t_1},\frac{b}{t_2},\frac{a}{t_3}])$,</p>
 
 <p>where $I$ is the identity matrix of size $a \times a$.</p>
 
 <h2 id="the-encrypted-algorithm">The Encrypted Algorithm</h2>
 
-<p>We now construct the complete encrypted matrix inversion algorithm. The input ciphertext $A$ is encoded as a tile tensor of shape $[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$, with $a=b=64$, $t_1=t_2=64, t_3=32$, fitting $131,072$ slots. Following the cleartext algorithm, we first compute $R = I - AA^\top / norm_A$. We transpose $A[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$ to $A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{1}{t3}]$, then calculate:</p>
+<p>We now construct the complete encrypted matrix inversion algorithm. The input ciphertext $A$ is encoded as a tile tensor of shape $[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}]$, with $a=b=64$, $t_1=t_2=64, t_3=32$, fitting $131,072$ slots. Following the cleartext algorithm, we first compute $R = I - AA^\top / norm_A$. We transpose $A[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}]$ to $A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{1}{t_3}]$, then calculate:</p>
 
-<p>$A[\frac{<em>}{t_1},\frac{a}{t2},\frac{b}{t3}] = duplicate(A[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}], 1)$,
-$A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{</em>}{t3}] = duplicate(A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{1}{t3}], 3)$,
-$AA^\top[\frac{b}{t_1},\frac{1?}{t2},\frac{b}{t3}] = sum(A[\frac{<em>}{t_1},\frac{a}{t2},\frac{b}{t3}]</em>A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{*}{t3}], 2)$,
-$R[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}] = I[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}] - clear(AA^\top[\frac{b}{t_1},\frac{1?}{t2},\frac{b}{t3}]) / norm_A$</p>
+<p>$A[\frac{*}{t_1},\frac{a}{t_2},\frac{b}{t_3}] = duplicate(A[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}], 1)$,</p>
+
+<p>$A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{*}{t_3}] = duplicate(A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{1}{t_3}], 3)$,</p>
+
+<p>$AA^\top[\frac{b}{t_1},\frac{1?}{t_2},\frac{b}{t_3}] = sum(A[\frac{*}{t_1},\frac{a}{t_2},\frac{b}{t_3}]*A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{*}{t_3}], 2)$,</p>
+
+<p>$R[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}] = I[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}] - clear(AA^\top[\frac{b}{t_1},\frac{1?}{t_2},\frac{b}{t_3}]) / norm_A$</p>
 
 <p>Since $AA^\top$ and $R$ are symmetric, we can select either dimension (e.g., 1 or 3) as the contracted dimension for multiplications.</p>
 
-<p>With $X[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$ and $R[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$, we enter the iteration loop. At each iteration, $X$ is updated as $X = X(I+R)$, which is straightforward due to compatible shapes. However, updating $R=R^2$ requires transposing one of $R$’s dimensions (e.g., from $[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$ to $[\frac{1}{t_1},\frac{b}{t2},\frac{b}{t3}]$) to enable multiplication. As mentioned earlier, transposition involves multiplying with an appropriately encoded identity matrix, resulting in two matrix products per iteration and doubling the multiplicative depth.</p>
+<p>With $X[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}]$ and $R[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]$, we enter the iteration loop. At each iteration, $X$ is updated as $X = X(I+R)$, which is straightforward due to compatible shapes. However, updating $R=R^2$ requires transposing one of $R$’s dimensions (e.g., from $[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]$ to $[\frac{1}{t_1},\frac{b}{t_2},\frac{b}{t_3}]$) to enable multiplication. As mentioned earlier, transposition involves multiplying with an appropriately encoded identity matrix, resulting in two matrix products per iteration and doubling the multiplicative depth.</p>
 
-<p>To address this, we use a simple optimization. Instead of maintaining one encoding of $R$, we store three: $R_1[\frac{1}{t_1},\frac{b}{t2},\frac{b}{t3}]$, $R_2[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$, and $R_3[\frac{b}{t_1},\frac{b}{t2},\frac{1}{t3}]$, which are derived from $R$ before the loop. Within the loop, these encodings are used pairwise to compute updates, e.g.:
-$R_1[\frac{1?}{t_1},\frac{b}{t2},\frac{b}{t3}] = sum(R_2[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]*R_3[\frac{b}{t_1},\frac{b}{t2},\frac{1}{t3}]), 1)$, and similarly for $R_2$ and $R_3$. This keeps the multiplicative depth per iteration at 2 (equivalent to one matrix multiplication), at the cost of four matrix multiplications per iteration instead of two. This trade-off is justified, as the computational cost is lower than the savings from reduced depth.
+<p>To address this, we use a simple optimization. Instead of maintaining one encoding of $R$, we store three: $R_1[\frac{1}{t_1},\frac{b}{t_2},\frac{b}{t_3}]$, $R_2[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]$, and $R_3[\frac{b}{t_1},\frac{b}{t_2},\frac{1}{t_3}]$, which are derived from $R$ before the loop. Within the loop, these encodings are used pairwise to compute updates, e.g.:
+$R_1[\frac{1?}{t_1},\frac{b}{t_2},\frac{b}{t_3}] = sum(R_2[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]*R_3[\frac{b}{t_1},\frac{b}{t_2},\frac{1}{t_3}]), 1)$, and similarly for $R_2$ and $R_3$. This keeps the multiplicative depth per iteration at 2 (equivalent to one matrix multiplication), at the cost of four matrix multiplications per iteration instead of two. This trade-off is justified, as the computational cost is lower than the savings from reduced depth.
 The total depth is: 26 (iterations) * 2 + 1 (scaling) + 4 (computing $R_i$) + 4 (reshaping result) = 61.</p>
 
 <h2 id="references">References</h2>
@@ -525,7 +534,7 @@ The total depth is: 26 (iterations) * 2 + 1 (scaling) + 4 (computing $R_i$) + 4 
   </p>
 
 
-    <p class="archive__item-excerpt" itemprop="description">The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.
+    <p class="archive__item-excerpt" itemprop="description">The article details my solution for designing an algorithm to evaluate the GELU activation on an encrypted vector.
 </p>
   </article>
 </div>

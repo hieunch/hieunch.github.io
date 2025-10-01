@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-09-30T01:15:06+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Homepage</title><subtitle>Ph.D Student at the University of Technology Sydney</subtitle><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><entry><title type="html">GELU Function over Encrypted Data</title><link href="http://localhost:4000/posts/fherma-challenge/gelu/" rel="alternate" type="text/html" title="GELU Function over Encrypted Data" /><published>2025-09-05T00:00:00+10:00</published><updated>2025-09-05T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-gelu</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/gelu/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/683eaf48eed44a699f640a92">GELU Function challenge</a>.</em> <br />
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-10-01T12:47:45+10:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Homepage</title><subtitle>Ph.D Student at the University of Technology Sydney</subtitle><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><entry><title type="html">GELU Function over Encrypted Data</title><link href="http://localhost:4000/posts/fherma-challenge/gelu/" rel="alternate" type="text/html" title="GELU Function over Encrypted Data" /><published>2025-09-05T00:00:00+10:00</published><updated>2025-09-05T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-gelu</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/gelu/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/683eaf48eed44a699f640a92">GELU Function challenge</a>.</em> <br />
 <em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
 
 <h2 id="introduction">Introduction</h2>
@@ -61,13 +61,19 @@ Each of these six factor polynomials is computed concurrently using OpenMP. The 
 
 <p>Notably, $x^2$ is computed only once and reused across factors, requiring only a single CC multiplication for all six factor polynomials.</p>
 
-<p>The factors are then combined using binary-tree multiplication in a depth-optimal manner:
-$\tilde{p}<em>{\text{even}}^{1,2}(x) = (cx^2+b_1x+a_1)(cx^2+b_2x+a_2)$,
-$\tilde{p}</em>{\text{even}}^{3,4}(x) = (cx^2+b_3x+a_3)(cx^2+b_4x+a_4)$,
-$\tilde{p}<em>{\text{even}}^{5,6}(x) = (cx^2+b_5x+a_5)(x+a_6)$,
-$\tilde{p}</em>{\text{even}}^{3,4,5,6}(x) = \tilde{p}<em>{\text{even}}^{3,4}(x)\tilde{p}</em>{\text{even}}^{5,6}(x)$,
-$\tilde{p}<em>{\text{even}}(x) = \tilde{p}</em>{\text{even}}^{1,2}(x)\tilde{p}<em>{\text{even}}^{3,4,5,6}(x)$.
-This procedure requires 5 CC multiplications for the binary-tree stage, resulting in a total of 6 multiplications for the entire polynomial, which is identical to the PS algorithm. Notably, the evaluation of $\tilde{p}</em>{\text{even}}^{1,2}$, $\tilde{p}<em>{\text{even}}^{3,4}$, and $\tilde{p}</em>{\text{even}}^{5,6}$ can also be performed in parallel. This enhanced concurrency results in an approximate 30% performance improvement over the PS approach.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for the GELU challenge on designing an algorithm to evaluate the GELU activation on an encrypted vector.]]></summary></entry><entry><title type="html">Sentiment Analysis</title><link href="http://localhost:4000/posts/fherma-challenge/sentiment/" rel="alternate" type="text/html" title="Sentiment Analysis" /><published>2025-08-15T00:00:00+10:00</published><updated>2025-08-15T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-sentiment</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/sentiment/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/681b3ff2da06abf28988891d">Sentiment Analysis challenge</a>.</em> <br />
+<p>The factors are then combined using binary-tree multiplication in a depth-optimal manner:</p>
+
+<p>$\tilde{p}_{\text{even}}^{1,2}(x) = (cx^2+b_1x+a_1)(cx^2+b_2x+a_2)$,</p>
+
+<p>$\tilde{p}_{\text{even}}^{3,4}(x) = (cx^2+b_3x+a_3)(cx^2+b_4x+a_4)$,</p>
+
+<p>$\tilde{p}_{\text{even}}^{5,6}(x) = (cx^2+b_5x+a_5)(x+a_6)$,</p>
+
+<p>$\tilde{p}_{\text{even}}^{3,4,5,6}(x) = \tilde{p}_{\text{even}}^{3,4}(x)\tilde{p}_{\text{even}}^{5,6}(x)$,</p>
+
+<p>$\tilde{p}_{\text{even}}(x) = \tilde{p}_{\text{even}}^{1,2}(x)\tilde{p}_{\text{even}}^{3,4,5,6}(x)$.</p>
+
+<p>This procedure requires 5 CC multiplications for the binary-tree stage, resulting in a total of 6 multiplications for the entire polynomial, which is identical to the PS algorithm. Notably, the evaluation of $\tilde{p}_{\text{even}}^{1,2}$, $\tilde{p}_{\text{even}}^{3,4}$, and $\tilde{p}_{\text{even}}^{5,6}$ can also be performed in parallel. This enhanced concurrency results in an approximate 30% performance improvement over the PS approach.</p>]]></content><author><name>Chi-Hieu Nguyen</name><email>chihieu2506@gmail.com</email></author><category term="FHERMA Challenge" /><category term="Homomorphic Encryption" /><category term="OpenFHE" /><summary type="html"><![CDATA[The article details my solution for designing an algorithm to evaluate the GELU activation on an encrypted vector.]]></summary></entry><entry><title type="html">Sentiment Analysis</title><link href="http://localhost:4000/posts/fherma-challenge/sentiment/" rel="alternate" type="text/html" title="Sentiment Analysis" /><published>2025-08-15T00:00:00+10:00</published><updated>2025-08-15T00:00:00+10:00</updated><id>http://localhost:4000/posts/fherma-challenge/blog-post-sentiment</id><content type="html" xml:base="http://localhost:4000/posts/fherma-challenge/sentiment/"><![CDATA[<p><em>The article details my winning solution for the <a href="https://fherma.io/challenges/681b3ff2da06abf28988891d">Sentiment Analysis challenge</a>.</em> <br />
 <em>Please refer to the challenge description page for comprehensive details, including the objective, input/output format, evaluation metrics, and other requirements.</em></p>
 
 <h2 id="introduction">Introduction</h2>
@@ -103,30 +109,22 @@ This procedure requires 5 CC multiplications for the binary-tree stage, resultin
 
 <h2 id="introduction">Introduction</h2>
 
-<table>
-  <tbody>
-    <tr>
-      <td>The challenge tasks players with finding the $k$ nearest neighbors of an encrypted 2D vector within a database, using cosine similarity to measure the distance between vectors. Cosine similarity is defined as $d(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{</td>
-      <td>\mathbf{u}</td>
-      <td> </td>
-      <td>\mathbf{v}</td>
-      <td>}$, where $\mathbf{u}$ and $\mathbf{v}$ are vectors, $\cdot$ denotes the dot product, and $</td>
-      <td>\cdot</td>
-      <td>$ represents the Euclidean norm. A common approach to find $k$-nearest neighbors (kNN) in cleartext is to compute the cosine similarity between the query vector and all database vectors, sort the similarities in descending order, and select the top $k$ vectors. This can be optimized using data structures like KD-trees or approximate methods like locality-sensitive hashing for efficiency.</td>
-    </tr>
-  </tbody>
-</table>
+<p>The challenge tasks players with finding the $k$ nearest neighbors of an encrypted 2D vector within a database, using cosine similarity to measure the distance between vectors. Cosine similarity is defined as $d(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{|\mathbf{u}| |\mathbf{v}|}$, where $\mathbf{u}$ and $\mathbf{v}$ are vectors, $\cdot$ denotes the dot product, and $|\cdot|$ represents the Euclidean norm. 
+A common approach to find $k$-nearest neighbors (kNN) in cleartext is to compute the cosine similarity between the query vector and all database vectors, sort the similarities in descending order, and select the top $k$ vectors. 
+This can be optimized using data structures like KD-trees or approximate methods like locality-sensitive hashing for efficiency.</p>
 
 <p>However, a naive implementation of such an algorithm in the HE domain may incur significant overhead due to the high computational cost of encrypted arithmetic operations, the need for deep circuits to evaluate non-linear functions like division and square roots in cosine similarity, limited support for comparison and sorting operations, and the increased ciphertext size and noise growth in HE schemes.</p>
 
 <h2 id="approach">Approach</h2>
 
-<p>We adopted an approximated approach that simplifies the kNN problem into a lookup table. This is based on the observation that two vectors are likely to share similar neighbors if the angle between them is small. In particular, we partition the 2D plane into $M$ uniform angular sectors, defined by a set of $M$ vectors ${\mathbf{v}<em>0, \mathbf{v}_1, \dots, \mathbf{v}</em>{M-1}}$, where each $\mathbf{v}<em>i$ is equally spaced at angles $\frac{2\pi i}{M}$ from the origin. Here, the $i$-th sector is the sector between $\mathbf{v}</em>{i-1}$ and $\mathbf{v}_i$. The neighbor set of a sector is defined as the $k$ nearest neighbors of its bisector ray, precomputed during initialization. For a query vector $\mathbf{x}$, we identify the sector it falls into by computing its angle relative to the origin and return the precomputed neighbors of that sector as its approximate neighbors. Figure 1 illustrates this partitioning approach.</p>
+<p>We adopted an approximated approach that simplifies the kNN problem into a lookup table. This is based on the observation that two vectors are likely to share similar neighbors if the angle between them is small. In particular, we partition the 2D plane into $M$ uniform angular sectors, defined by a set of $M$ vectors ${\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_{M-1}}$, where each $\mathbf{v}_i$ is equally spaced at angles $\frac{2\pi i}{M}$ from the origin. 
+Here, the $i$-th sector is the sector between $\mathbf{v}_{i-1}$ and $\mathbf{v}_i$. The neighbor set of a sector is defined as the $k$ nearest neighbors of its bisector ray, precomputed during initialization. For a query vector $\mathbf{x}$, we identify the sector it falls into by computing its angle relative to the origin and return the precomputed neighbors of that sector as its approximate neighbors. Figure 1 illustrates this partitioning approach.</p>
 
-<p><img src="https://hackmd.io/_uploads/rJP5ci_-gx.png" alt="sector_partition" />
-<em><strong>Figure 1</strong>: Illustration of the angular sector partitioning approach with $M=50$ sectors.</em></p>
+<p><img src="https://hackmd.io/_uploads/rJP5ci_-gx.png" alt="sector_partition" /></p>
 
-<p>Given a 2D query vector $\mathbf{x}$, we can determine if it falls into the $i$-th sector by evaluating the dot products $\mathbf{x} \cdot \mathbf{v}<em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ and checking if these values have opposite signs. In the HE domain, this check can be translated to computing the product of the dot products, i.e., $(\mathbf{x} \cdot \mathbf{v}</em>{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}<em>i) = (x[0]v</em>{i-1}[0] + x[1]v_{i-1}[1]) * (x[0]v_i[0] + x[1]v_i[1])$, using basic HE operations. We then apply an approximation of the sign function to the result to check if the value is negative, confirming sector membership.</p>
+<p><em><strong>Figure 1</strong>: Illustration of the angular sector partitioning approach with $M=50$ sectors.</em></p>
+
+<p>Given a 2D query vector $\mathbf{x}$, we can determine if it falls into the $i$-th sector by evaluating the dot products $\mathbf{x} \cdot \mathbf{v}_{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ and checking if these values have opposite signs. In the HE domain, this check can be translated to computing the product of the dot products, i.e., $(\mathbf{x} \cdot \mathbf{v}_{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}_i) = (x[0]v_{i-1}[0] + x[1]v_{i-1}[1]) * (x[0]v_i[0] + x[1]v_i[1])$, using basic HE operations. We then apply an approximation of the sign function to the result to check if the value is negative, confirming sector membership.</p>
 
 <p>It’s straightforward that the accuracy of the prediction increases as the number of sectors increases, though this comes at the cost of higher computational requirements. At a very large number of clusters, the accuracy approaches perfection, but the computational cost may become excessively high. However, given the nonuniform distribution of data points, we can employ a nonuniform clustering approach to reduce the number of clusters. This involves denser partitioning in directions with more points and coarser partitioning in less populated areas. Specifically, we start with a high-resolution partition of $M=5000000$ clusters, which achieves perfect accuracy, and then gradually reduce the number of clusters by merging consecutive clusters that share the same set of $k$ nearest neighbors. This process is repeated until no further merging is possible, resulting in $M=1001$ clusters after the procedure, significantly reducing the computational overhead. Figure 2 shows an illustration of the resulting nonuniform partition. The high-level pseudocode for reducing the number of clusters is as follows</p>
 
@@ -144,8 +142,9 @@ This procedure requires 5 CC multiplications for the binary-tree stage, resultin
 &gt; Update the sector list with the merged sectors
 </code></pre></div></div>
 
-<p><img src="https://hackmd.io/_uploads/BkDDd3dWeg.png" alt="nonuniform" />
-<em><strong>Figure 2</strong>: Illustration of the resulting nonuniform partition after merging clusters.</em></p>
+<p><img src="https://hackmd.io/_uploads/BkDDd3dWeg.png" alt="nonuniform" /></p>
+
+<p><em><strong>Figure 2</strong>: Illustration of the resulting nonuniform partition after merging clusters.</em></p>
 
 <h2 id="he-implementation">HE Implementation</h2>
 
@@ -158,9 +157,9 @@ This procedure requires 5 CC multiplications for the binary-tree stage, resultin
   <li><strong>Step 2: Make a plaintext for sector boundary vectors</strong>
   A plaintext $\text{pt}_\mathbf{v}$ is created to store the sector boundary vectors ${\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_M}$. For each sector $i$, the vector $\mathbf{v}_i$ is placed in specific slot pairs. For example, slots from $32i$ to $32i+31$ corresponding to sector $i$ will contain the replications of $[\mathbf{v}_i[0], \mathbf{v}_i[1]]$. This allows for the computation of dot products with consecutive sector boundaries.</li>
   <li><strong>Step 3: Compute dot products with sector boundaries</strong>
-  For each sector $i$, the dot products $\mathbf{x} \cdot \mathbf{v}<em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ are computed in the HE domain. This involves element-wise subtraction between the replicated query vector and the sector boundary vectors, followed by rotation and multiplication. Specifically, the dot product $\mathbf{x} \cdot \mathbf{v}_i$ is calculated as $(\text{ct}</em>\mathbf{x}-\text{pt}<em>\mathbf{v})*\text{Rotate}(\text{ct}</em>\mathbf{x}-\text{pt}_\mathbf{v}, 1)$.</li>
+  For each sector $i$, the dot products $\mathbf{x} \cdot \mathbf{v}_{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ are computed in the HE domain. This involves element-wise subtraction between the replicated query vector and the sector boundary vectors, followed by rotation and multiplication. Specifically, the dot product $\mathbf{x} \cdot \mathbf{v}_i$ is calculated as $(\text{ct}_\mathbf{x}-\text{pt}_\mathbf{v})*\text{Rotate}(\text{ct}_\mathbf{x}-\text{pt}_\mathbf{v}, 1)$.</li>
   <li><strong>Step 4: Determine the sign of dot products</strong>
-  To check if $\mathbf{x}$ lies between $\mathbf{v}<em>{i-1}$ and $\mathbf{v}_i$, we need to determine if the dot products $\mathbf{x} \cdot \mathbf{v}</em>{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ have opposite signs. An approximation of the sign function is evalutated over the dot product results using Paterson-Stockmeyer algorithm, converting the numerical dot products into boolean indicators (1 if the dot product is positive and 0 if negative).</li>
+  To check if $\mathbf{x}$ lies between $\mathbf{v}_{i-1}$ and $\mathbf{v}_i$, we need to determine if the dot products $\mathbf{x} \cdot \mathbf{v}_{i-1}$ and $\mathbf{x} \cdot \mathbf{v}_i$ have opposite signs. An approximation of the sign function is evalutated over the dot product results using Paterson-Stockmeyer algorithm, converting the numerical dot products into boolean indicators (1 if the dot product is positive and 0 if negative).</li>
   <li><strong>Step 5: Identify sector</strong>
   The sector membership test relies on the fact that $\mathbf{x}$ lies in sector $i$ if $(\mathbf{x} \cdot \mathbf{v}_{i-1}) \cdot (\mathbf{x} \cdot \mathbf{v}_i) &lt; 0$, indicating opposite signs. In the HE domain, this is implemented by multiplying the sign indicators of the two dot products. If the product is 1 (i.e., one sign is positive and the other negative), $\mathbf{x}$ is confirmed to be in sector $i$.</li>
   <li><strong>Step 6: Map to precomputed neighbors</strong>
@@ -242,42 +241,50 @@ This procedure requires 5 CC multiplications for the binary-tree stage, resultin
 
 <h3 id="performing-matrix-multiplication">Performing Matrix Multiplication</h3>
 
-<p>Given two matrices $X[a,b]$ and $Y[b,c]$, to compute $Z=XY$, we encode $X$ and $Y$ so the contracted dimension (the dimension over which the summation runs over) aligns in their tensor shapes. One possible encoding is $X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}]$ and $Y[\frac{1}{t_1},\frac{b}{t2},\frac{c}{t3}]$. The multiplication proceeds as:</p>
+<p>Given two matrices $X[a,b]$ and $Y[b,c]$, to compute $Z=XY$, we encode $X$ and $Y$ so the contracted dimension (the dimension over which the summation runs over) aligns in their tensor shapes. One possible encoding is $X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}]$ and $Y[\frac{1}{t_1},\frac{b}{t_2},\frac{c}{t_3}]$. The multiplication proceeds as:</p>
 
-<p>$X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}], 3)$,
-$Y[\frac{</em>}{t_1},\frac{b}{t2},\frac{c}{t3}] = duplicate(Y[\frac{1}{t_1},\frac{b}{t2},\frac{c}{t3}], 1)$,
-$Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}] = sum(X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}]</em>Y[\frac{*}{t_1},\frac{b}{t2},\frac{c}{t3}], 2)$,</p>
+<p>$X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}], 3)$,</p>
 
-<p>where $duplicate(T,i)$ duplicates the tensor along the $i$-th dimension, and $sum(T,i)$ sums over the $i$-th dimension. The resulting tensor $Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}]$ contains unknown values in the second dimension, denoted by $(1?)$. To enable further computations, we clear unused slots using the $clear$ operator:</p>
+<p>$Y[\frac{*}{t_1},\frac{b}{t_2},\frac{c}{t_3}] = duplicate(Y[\frac{1}{t_1},\frac{b}{t_2},\frac{c}{t_3}], 1)$,</p>
 
-<p>$clear(Z[\frac{a}{t_1},\frac{1?}{t2},\frac{c}{t3}]) = Z[\frac{a}{t_1},\frac{1}{t2},\frac{c}{t3}]$.</p>
+<p>$Z[\frac{a}{t_1},\frac{1?}{t_2},\frac{c}{t_3}] = sum(X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}]*Y[\frac{*}{t_1},\frac{b}{t_2},\frac{c}{t_3}], 2)$,</p>
+
+<p>where $duplicate(T,i)$ duplicates the tensor along the $i$-th dimension, and $sum(T,i)$ sums over the $i$-th dimension. The resulting tensor $Z[\frac{a}{t_1},\frac{1?}{t_2},\frac{c}{t_3}]$ contains unknown values in the second dimension, denoted by $(1?)$. To enable further computations, we clear unused slots using the $clear$ operator:</p>
+
+<p>$clear(Z[\frac{a}{t_1},\frac{1?}{t_2},\frac{c}{t_3}]) = Z[\frac{a}{t_1},\frac{1}{t_2},\frac{c}{t_3}]$.</p>
 
 <p>The $clear$ operation involves multiplication with a plaintext mask, incurring one multiplicative level.</p>
 
-<p>Matrix transposition, e.g., from $X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}]$ to $X^\top[\frac{1}{t_1},\frac{b}{t2},\frac{a}{t3}]$, is performed as follows:</p>
+<p>Matrix transposition, e.g., from $X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}]$ to $X^\top[\frac{1}{t_1},\frac{b}{t_2},\frac{a}{t_3}]$, is performed as follows:</p>
 
-<p>$X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t2},\frac{1}{t3}], 3)$,
-$I[\frac{a}{t_1},\frac{</em>}{t2},\frac{a}{t3}] = duplicate(I[\frac{a}{t_1},\frac{1}{t2},\frac{a}{t3}], 2)$,
-$X^\top[\frac{1?}{t_1},\frac{b}{t2},\frac{a}{t3}] = sum(X[\frac{a}{t_1},\frac{b}{t2},\frac{<em>}{t3}]</em>I[\frac{a}{t_1},\frac{*}{t2},\frac{a}{t3}], 1)$,
-$X^\top[\frac{1}{t_1},\frac{b}{t2},\frac{a}{t3}] = clear(X^\top[\frac{1?}{t_1},\frac{b}{t2},\frac{a}{t3}])$,</p>
+<p>$X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}] = duplicate(X[\frac{a}{t_1},\frac{b}{t_2},\frac{1}{t_3}], 3)$,</p>
+
+<p>$I[\frac{a}{t_1},\frac{*}{t_2},\frac{a}{t_3}] = duplicate(I[\frac{a}{t_1},\frac{1}{t_2},\frac{a}{t_3}], 2)$,</p>
+
+<p>$X^\top[\frac{1?}{t_1},\frac{b}{t_2},\frac{a}{t_3}] = sum(X[\frac{a}{t_1},\frac{b}{t_2},\frac{*}{t_3}]*I[\frac{a}{t_1},\frac{*}{t_2},\frac{a}{t_3}], 1)$,</p>
+
+<p>$X^\top[\frac{1}{t_1},\frac{b}{t_2},\frac{a}{t_3}] = clear(X^\top[\frac{1?}{t_1},\frac{b}{t_2},\frac{a}{t_3}])$,</p>
 
 <p>where $I$ is the identity matrix of size $a \times a$.</p>
 
 <h2 id="the-encrypted-algorithm">The Encrypted Algorithm</h2>
 
-<p>We now construct the complete encrypted matrix inversion algorithm. The input ciphertext $A$ is encoded as a tile tensor of shape $[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$, with $a=b=64$, $t_1=t_2=64, t_3=32$, fitting $131,072$ slots. Following the cleartext algorithm, we first compute $R = I - AA^\top / norm_A$. We transpose $A[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$ to $A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{1}{t3}]$, then calculate:</p>
+<p>We now construct the complete encrypted matrix inversion algorithm. The input ciphertext $A$ is encoded as a tile tensor of shape $[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}]$, with $a=b=64$, $t_1=t_2=64, t_3=32$, fitting $131,072$ slots. Following the cleartext algorithm, we first compute $R = I - AA^\top / norm_A$. We transpose $A[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}]$ to $A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{1}{t_3}]$, then calculate:</p>
 
-<p>$A[\frac{<em>}{t_1},\frac{a}{t2},\frac{b}{t3}] = duplicate(A[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}], 1)$,
-$A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{</em>}{t3}] = duplicate(A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{1}{t3}], 3)$,
-$AA^\top[\frac{b}{t_1},\frac{1?}{t2},\frac{b}{t3}] = sum(A[\frac{<em>}{t_1},\frac{a}{t2},\frac{b}{t3}]</em>A^\top[\frac{b}{t_1},\frac{a}{t2},\frac{*}{t3}], 2)$,
-$R[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}] = I[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}] - clear(AA^\top[\frac{b}{t_1},\frac{1?}{t2},\frac{b}{t3}]) / norm_A$</p>
+<p>$A[\frac{*}{t_1},\frac{a}{t_2},\frac{b}{t_3}] = duplicate(A[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}], 1)$,</p>
+
+<p>$A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{*}{t_3}] = duplicate(A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{1}{t_3}], 3)$,</p>
+
+<p>$AA^\top[\frac{b}{t_1},\frac{1?}{t_2},\frac{b}{t_3}] = sum(A[\frac{*}{t_1},\frac{a}{t_2},\frac{b}{t_3}]*A^\top[\frac{b}{t_1},\frac{a}{t_2},\frac{*}{t_3}], 2)$,</p>
+
+<p>$R[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}] = I[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}] - clear(AA^\top[\frac{b}{t_1},\frac{1?}{t_2},\frac{b}{t_3}]) / norm_A$</p>
 
 <p>Since $AA^\top$ and $R$ are symmetric, we can select either dimension (e.g., 1 or 3) as the contracted dimension for multiplications.</p>
 
-<p>With $X[\frac{1}{t_1},\frac{a}{t2},\frac{b}{t3}]$ and $R[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$, we enter the iteration loop. At each iteration, $X$ is updated as $X = X(I+R)$, which is straightforward due to compatible shapes. However, updating $R=R^2$ requires transposing one of $R$’s dimensions (e.g., from $[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$ to $[\frac{1}{t_1},\frac{b}{t2},\frac{b}{t3}]$) to enable multiplication. As mentioned earlier, transposition involves multiplying with an appropriately encoded identity matrix, resulting in two matrix products per iteration and doubling the multiplicative depth.</p>
+<p>With $X[\frac{1}{t_1},\frac{a}{t_2},\frac{b}{t_3}]$ and $R[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]$, we enter the iteration loop. At each iteration, $X$ is updated as $X = X(I+R)$, which is straightforward due to compatible shapes. However, updating $R=R^2$ requires transposing one of $R$’s dimensions (e.g., from $[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]$ to $[\frac{1}{t_1},\frac{b}{t_2},\frac{b}{t_3}]$) to enable multiplication. As mentioned earlier, transposition involves multiplying with an appropriately encoded identity matrix, resulting in two matrix products per iteration and doubling the multiplicative depth.</p>
 
-<p>To address this, we use a simple optimization. Instead of maintaining one encoding of $R$, we store three: $R_1[\frac{1}{t_1},\frac{b}{t2},\frac{b}{t3}]$, $R_2[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]$, and $R_3[\frac{b}{t_1},\frac{b}{t2},\frac{1}{t3}]$, which are derived from $R$ before the loop. Within the loop, these encodings are used pairwise to compute updates, e.g.:
-$R_1[\frac{1?}{t_1},\frac{b}{t2},\frac{b}{t3}] = sum(R_2[\frac{b}{t_1},\frac{1}{t2},\frac{b}{t3}]*R_3[\frac{b}{t_1},\frac{b}{t2},\frac{1}{t3}]), 1)$, and similarly for $R_2$ and $R_3$. This keeps the multiplicative depth per iteration at 2 (equivalent to one matrix multiplication), at the cost of four matrix multiplications per iteration instead of two. This trade-off is justified, as the computational cost is lower than the savings from reduced depth.
+<p>To address this, we use a simple optimization. Instead of maintaining one encoding of $R$, we store three: $R_1[\frac{1}{t_1},\frac{b}{t_2},\frac{b}{t_3}]$, $R_2[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]$, and $R_3[\frac{b}{t_1},\frac{b}{t_2},\frac{1}{t_3}]$, which are derived from $R$ before the loop. Within the loop, these encodings are used pairwise to compute updates, e.g.:
+$R_1[\frac{1?}{t_1},\frac{b}{t_2},\frac{b}{t_3}] = sum(R_2[\frac{b}{t_1},\frac{1}{t_2},\frac{b}{t_3}]*R_3[\frac{b}{t_1},\frac{b}{t_2},\frac{1}{t_3}]), 1)$, and similarly for $R_2$ and $R_3$. This keeps the multiplicative depth per iteration at 2 (equivalent to one matrix multiplication), at the cost of four matrix multiplications per iteration instead of two. This trade-off is justified, as the computational cost is lower than the savings from reduced depth.
 The total depth is: 26 (iterations) * 2 + 1 (scaling) + 4 (computing $R_i$) + 4 (reshaping result) = 61.</p>
 
 <h2 id="references">References</h2>
